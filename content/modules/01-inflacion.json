@@ -1,0 +1,19 @@
+{
+  "_nota": "ESQUELETO. Completar con contenido revisado contra fuentes oficiales.",
+  "id": "inflacion",
+  "order": 1,
+  "title": "Inflación y poder adquisitivo",
+  "goals": ["entender-precios", "proteger-ahorros"],
+  "minLevel": "inicial",
+  "macroSeries": ["ipc_mensual"],
+  "lessons": [
+    {
+      "id": "inflacion-1",
+      "title": "TODO: qué es la inflación y cómo se mide",
+      "summary": "TODO",
+      "body": "TODO (markdown)",
+      "sources": [],
+      "miniTest": []
+    }
+  ]
+}

@@ -1,0 +1,39 @@
+{
+  "_nota": "EJEMPLO. Reemplazar por 10 preguntas revisadas contra fuentes oficiales y ajustar los umbrales de levels.",
+  "version": 1,
+  "levels": [
+    { "id": "inicial", "minScore": 0 },
+    { "id": "intermedio", "minScore": 4 },
+    { "id": "avanzado", "minScore": 8 }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "dimension": "conocimiento",
+      "topic": "inflacion",
+      "text": "Tu sueldo sube 10% en un período en el que los precios subieron 15%. ¿Qué pasa con lo que puedes comprar?",
+      "options": [
+        { "id": "a", "text": "Puedo comprar más" },
+        { "id": "b", "text": "Puedo comprar menos" },
+        { "id": "c", "text": "Puedo comprar lo mismo" }
+      ],
+      "correct": "b",
+      "explanation": "Los precios subieron más que tu ingreso, así que tu poder de compra bajó.",
+      "points": 1
+    },
+    {
+      "id": "q2",
+      "dimension": "conocimiento",
+      "topic": "interes",
+      "text": "Inviertes $100 al 10% anual y los intereses se reinvierten (interés compuesto). ¿Cuánto tienes al cabo de 2 años?",
+      "options": [
+        { "id": "a", "text": "$120" },
+        { "id": "b", "text": "$121" },
+        { "id": "c", "text": "$110" }
+      ],
+      "correct": "b",
+      "explanation": "El primer año ganas $10 y quedas con $110. El segundo año el 10% se calcula sobre $110, es decir $11, y llegas a $121.",
+      "points": 1
+    }
+  ]
+}
