@@ -67,7 +67,7 @@ decisión técnica ya eligió: "Plantillas server-side + JS liviano").
    plantillas en Django + JS vanilla. (La aritmética de `calculators.tsx`, `budget-planner.tsx` y
    `debt.py` es trivial de portar.)
 4. **Sin login para las herramientas.** Calculadoras y presupuesto corren en el navegador; no
-   necesitan cuenta ni base. Encaja con "explorar sin iniciar sesión".
+   necesitan cuenta ni base. Encaja con una app abierta, sin cuentas (decisión 2026-10-24).
 
 ---
 

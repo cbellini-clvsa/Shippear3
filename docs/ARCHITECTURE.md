@@ -5,15 +5,18 @@
 ```
 Usuario ──► Next.js (Vercel) ──► Postgres ◄── Python (data/)
               │  UI + rutas API        ▲        series macro
-              │  Auth.js (Google)      │
+              │  sin login (abierta)   │
               └── lee content/*.json ──┘ (contenido versionado en el repo)
+  progreso del recorrido: en el navegador (localStorage), sin identificar a nadie
 ```
 
 ## Decisiones y por qué
 
 1. **El contenido vive en el repo (`content/`), no en la base.** Quien escribe lecciones y preguntas
    no depende de la base ni del backend, y el frontend se puede construir contra los JSON desde el minuto uno.
-2. **La base guarda solo estado de usuario**: quién es, qué respondió, qué completó, qué objetivo eligió.
+2. **No hay cuentas ni login (decisión 2026-10-24: app libre y abierta).** La base guarda solo las
+   series macro. Lo que la persona responde, elige o completa vive en **su navegador** (localStorage),
+   sin identificarla; no se sincroniza entre dispositivos.
 3. **Prisma es dueño del esquema.** Python solo inserta filas en las tablas de series macro; no crea ni modifica tablas.
 4. **Un solo servicio web.** Las rutas de API están dentro de Next.js. No hay un segundo servidor que desplegar.
 5. **Python es un script, no un servidor.** Se ejecuta a mano o programado y escribe en la base.
@@ -24,12 +27,16 @@ Usuario ──► Next.js (Vercel) ──► Postgres ◄── Python (data/)
 
 | Tabla | Campos clave |
 |---|---|
-| `User` | id, email, name, createdAt (lo gestiona Auth.js) |
-| `QuizAttempt` | id, userId, score, level, answers (JSON), createdAt |
-| `Goal` | id, userId, type (ej. `salir-de-deudas`), createdAt |
-| `LessonProgress` | userId, moduleId, lessonId, completedAt, miniTestScore |
 | `MacroSeries` | id (`ipc_mensual`, `dolar_oficial`…), name, unit |
 | `MacroPoint` | seriesId, date, value |
+
+No hay tablas de usuario. El estado del recorrido se guarda en el navegador con esta forma
+(clave única de la app, versionada):
+
+```json
+{ "v": 1, "level": "principiante", "goal": "salir-de-deudas",
+  "lessons": { "<moduleId>/<lessonId>": { "completedAt": "...", "miniTestScore": 8 } } }
+```
 
 `moduleId` y `lessonId` son los `id` de los archivos en `content/`.
 
@@ -37,23 +44,21 @@ Usuario ──► Next.js (Vercel) ──► Postgres ◄── Python (data/)
 
 | Método y ruta | Entrada | Salida |
 |---|---|---|
-| `POST /api/quiz/submit` | `{ answers: { [questionId]: optionId } }` | `{ score, level }` |
-| `POST /api/goals` | `{ type }` | `{ ok: true }` |
-| `GET /api/me/progress` | (sesión) | `{ level, goals, lessons: [...], percent }` |
-| `POST /api/progress/lesson` | `{ moduleId, lessonId, miniTestScore? }` | `{ ok: true, percent }` |
+| `POST /api/quiz/submit` | `{ answers: { [questionId]: optionId } }` | `{ score, level }` (no guarda nada; el cliente persiste el resultado) |
 | `GET /api/macro/latest` | (nada) | `{ [seriesId]: { date, value } }` |
 
+Objetivo elegido y progreso de lecciones **no pasan por la API**: se leen y escriben en el navegador.
 Mientras A no tenga la API lista, B trabaja con respuestas simuladas con esta misma forma.
 
-## Login con Google: puntos que suelen trabar
+## Sin cuentas: cómo se maneja el progreso
 
-- Crear el ID de cliente OAuth en Google Cloud Console.
-- Cargar **dos** URI de redireccionamiento autorizadas: la de local y la de producción.
-  Con Auth.js la ruta suele ser `/api/auth/callback/google` (verificar en la guía vigente).
-- Si la pantalla de consentimiento queda en modo de prueba, solo entran los correos cargados como
-  usuarios de prueba. Carguen los correos de la demo antes de presentar.
+- Todo se guarda en `localStorage` bajo una clave única y versionada; leer y escribir siempre con
+  `try/catch` para que la app funcione aunque el navegador bloquee el almacenamiento.
+- No se sincroniza entre dispositivos ni sobrevive a "borrar datos del sitio": decirlo en la app.
+- Ofrecer un botón "Borrar mi progreso". Exportar/importar el progreso queda como mejora futura.
 
 ## Datos personales
 
-Se guarda email, respuestas y progreso. Mostrar un aviso claro en la app de qué se almacena
-y que el contenido es educativo, no asesoramiento financiero.
+No se guarda ningún dato personal en el servidor: no hay cuentas, email ni contraseñas. Mostrar un
+aviso claro de que el progreso queda en el navegador y de que el contenido es educativo, no
+asesoramiento financiero.

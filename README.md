@@ -34,13 +34,13 @@ CONTRIBUTING.md Cómo trabajamos con git
 cd apps
 pnpm create next-app@latest web --ts --tailwind --eslint --app --src-dir --import-alias "@/*" --use-pnpm
 cd web
-pnpm add next-auth zod @prisma/client
+pnpm add zod @prisma/client
 pnpm add -D prisma
 pnpm dlx prisma init
 ```
 
-Verifiquen las opciones del asistente y la guía de Auth.js (https://authjs.dev) porque
-las versiones cambian. Después, copien `.env.example` a `apps/web/.env.local` y completen.
+Verifiquen las opciones del asistente porque las versiones cambian. Después, copien
+`.env.example` a `apps/web/.env.local` y completen (no hay credenciales de login: la app es abierta).
 
 ## Variables de entorno
 
