@@ -629,7 +629,8 @@
   var aprenderContent=document.getElementById("aprenderContent");
 
   function indexHTML(){
-    var html=rutaHTML()+'<span class="eyebrow">El curso</span>'+
+    // La Ruta (5 pasos) ya no se muestra acá: vive en Herramientas, que se arma en ese mismo orden.
+    var html='<span class="eyebrow">El curso</span>'+
       '<h2 style="font-size:clamp(24px,3.6vw,34px);margin:6px 0 4px;">Educación financiera, paso a paso</h2>'+
       '<p class="muted" style="max-width:66ch;margin-bottom:22px;">Antes de ver cada instrumento, la base: casi todo lo que se invierte cae en dos grandes familias.</p>'+
       '<div class="rfrv">'+
@@ -771,6 +772,8 @@
     {order:4,title:"Automatizá tu ahorro",body:"Si ahorrás lo que sobra, casi nunca sobra. Pagate a vos primero: apenas cobres, separá un monto fijo.",tip:"Empezá con poco, aunque sea 5%, y subilo cada vez que te aumenten.",herramienta:"meta-ahorro"},
     {order:5,title:"Empezá a invertir de a poco",body:"Con los pasos anteriores resueltos, podés investigar opciones según tu perfil y tu plazo. Diversificar y tener paciencia pesan más que adivinar el mercado.",tip:"Nunca inviertas dinero que vas a necesitar en el corto plazo ni en algo que no entendés.",herramienta:"interes-compuesto"}
   ]};
+  // rutaHTML() no se renderiza desde 2026-10-24 (duplicaba el menú de Herramientas); RUTA sigue siendo la
+  // fuente del orden y los títulos de los pasos que usa Herramientas. Se deja por si se quiere volver a mostrar.
   function rutaHTML(){
     var cards=RUTA.pasos.map(function(p){
       // Las recomendaciones de calculadora viven en Herramientas; acá queda solo un link directo a la herramienta del paso.
