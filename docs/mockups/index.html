@@ -2,7 +2,7 @@
 <title>Plata Clara</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
-  /* Layout: nav fija + vistas conmutables (Inicio/Aprender/Mercado/Glosario/Mis avances). Login con Google (simulado) habilita el panel de avances. Color por tema para orientar al usuario. */
+  /* Layout: nav fija + vistas conmutables. "Aprender" es dinámico: índice por categoría (renta fija/variable/fondos/macro) y lección por instrumento. Color por tema. Login con Google simulado. */
   :root{
     --bg:#EFF4F7; --surface:#FFFFFF; --surface-2:#E9F0F4;
     --fg:#12212B; --muted:#5A6B77;
@@ -39,7 +39,7 @@
 
   *{box-sizing:border-box}
   body{background:var(--bg); color:var(--fg); font-family:var(--font-body); line-height:1.55; -webkit-font-smoothing:antialiased;}
-  h1,h2,h3,h4{font-family:var(--font-display); font-weight:700; line-height:1.1; text-wrap:balance; margin:0;}
+  h1,h2,h3,h4{font-family:var(--font-display); font-weight:700; line-height:1.12; text-wrap:balance; margin:0;}
   p{margin:0;}
   a{color:var(--accent-strong); text-decoration:none;}
   button{font-family:inherit;}
@@ -47,11 +47,10 @@
   .muted{color:var(--muted);}
   .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--accent-strong);}
 
-  /* Header */
   header.topbar{position:sticky; top:env(safe-area-inset-top,0px); z-index:30; background:color-mix(in srgb,var(--surface) 90%, transparent); backdrop-filter:saturate(1.3) blur(10px); border-bottom:1px solid var(--border);}
   body::before{content:""; position:fixed; inset:0 0 auto; height:env(safe-area-inset-top,0px); background:var(--surface); z-index:29;}
   .topbar .wrap{display:flex; align-items:center; gap:14px; padding-block:11px;}
-  .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:800; font-size:20px; letter-spacing:-.02em;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:800; font-size:20px; letter-spacing:-.02em; cursor:pointer;}
   .brand .logo{width:32px; height:32px; border-radius:10px; background:var(--grad); display:grid; place-items:center; color:#fff; flex:none; box-shadow:0 4px 12px -4px #2563EB66;}
   .brand .logo svg{width:19px;height:19px}
   nav.tabs{display:flex; gap:3px; margin-left:8px; flex-wrap:wrap;}
@@ -62,7 +61,6 @@
   .icon-btn{border:1px solid var(--border); background:var(--surface); color:var(--fg); width:38px; height:38px; border-radius:10px; cursor:pointer; display:grid; place-items:center; flex:none;}
   .icon-btn svg{width:18px;height:18px}
 
-  /* Botón Google */
   .gbtn{display:inline-flex; align-items:center; gap:10px; background:#fff; color:#3c4043; border:1px solid #dadce0; border-radius:10px; padding:9px 15px; font-weight:600; font-size:14px; cursor:pointer; box-shadow:0 1px 2px #0000000f;}
   .gbtn:hover{background:#f7f8f8;}
   .gbtn svg{width:18px;height:18px;flex:none}
@@ -82,8 +80,8 @@
   .btn.primary:hover{filter:brightness(1.05);}
   .btn.ghost{background:var(--surface); color:var(--fg); border:1px solid var(--border);}
   .btn.ghost:hover{border-color:var(--accent);}
+  .btn.sm{padding:9px 14px;font-size:13px}
 
-  /* Hero */
   .hero{position:relative; border-radius:24px; overflow:hidden; padding:40px; background:var(--surface); border:1px solid var(--border);}
   .hero .glow{position:absolute; inset:0; background:var(--grad); opacity:.10; z-index:0;}
   .hero .inner{position:relative; z-index:1; display:grid; grid-template-columns:1.25fr .9fr; gap:34px; align-items:center;}
@@ -98,13 +96,11 @@
   .side-card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:22px; box-shadow:0 18px 40px -28px #0b162066;}
   .side-card h3{font-size:17px;}
 
-  /* Progress ring */
-  .ring{--p:32; width:112px; height:112px; position:relative; flex:none;}
+  .ring{width:112px; height:112px; position:relative; flex:none;}
   .ring svg{transform:rotate(-90deg)}
   .ring .lbl{position:absolute; inset:0; display:grid; place-items:center; font-family:var(--font-display); font-weight:800; font-size:24px;}
   .ring .lbl small{display:block;font-family:var(--font-body);font-weight:600;font-size:10px;color:var(--muted);text-align:center;letter-spacing:.04em}
 
-  /* Market strip */
   .sectionhead{display:flex; align-items:end; justify-content:space-between; gap:12px; margin-bottom:16px;}
   .sectionhead h2{font-size:clamp(22px,3vw,28px); letter-spacing:-.01em;}
   .strip{display:grid; grid-template-columns:repeat(5,1fr); gap:12px;}
@@ -114,46 +110,65 @@
   .tile .d{font-size:12px; font-weight:700; margin-top:3px; font-variant-numeric:tabular-nums;}
   .d.pos{color:var(--pos);} .d.neg{color:var(--neg);}
 
-  /* Temas grid con color por tema */
   .grid-temas{display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px;}
-  .tema{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; text-align:left; display:flex; flex-direction:column; gap:10px; position:relative; overflow:hidden;}
+  .tema{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; cursor:pointer; transition:transform .12s ease, box-shadow .12s ease; text-align:left; display:flex; flex-direction:column; gap:10px; position:relative; overflow:hidden; width:100%;}
   .tema::before{content:""; position:absolute; left:0; top:0; bottom:0; width:4px; background:var(--tc);}
   .tema:hover{transform:translateY(-3px); box-shadow:0 16px 30px -22px var(--tc);}
   .tema .ic{width:44px; height:44px; border-radius:12px; display:grid; place-items:center; color:var(--tc); background:color-mix(in srgb,var(--tc) 16%, var(--surface));}
   .tema .ic svg{width:24px;height:24px}
   .tema h3{font-size:16px;}
   .tema p{font-size:13px; color:var(--muted);}
-  .tema .lvl{font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--tc); margin-top:auto;}
+  .tema .lvl{font-size:11px; font-weight:800; letter-spacing:.04em; text-transform:uppercase; color:var(--tc); margin-top:auto; display:inline-flex; gap:6px; align-items:center;}
 
-  .cols{display:grid; grid-template-columns:1.1fr .9fr; gap:24px; margin-top:12px;}
+  /* Renta fija vs variable banner */
+  .rfrv{display:grid; grid-template-columns:1fr 1fr; gap:14px; margin:4px 0 10px;}
+  .rfrv .box{border-radius:var(--radius); padding:20px; border:1px solid var(--border); background:var(--surface); border-top:4px solid var(--tc);}
+  .rfrv .box h3{font-size:19px; color:var(--tc); display:flex; align-items:center; gap:9px;}
+  .rfrv .box .ic{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:color-mix(in srgb,var(--tc) 16%,var(--surface));}
+  .rfrv .box .ic svg{width:19px;height:19px}
+  .rfrv .box p{font-size:14px; color:var(--muted); margin-top:10px;}
+  .rfrv .box ul{margin:12px 0 0; padding-left:0; list-style:none; display:flex; flex-wrap:wrap; gap:6px;}
+  .rfrv .box ul li{font-size:12px; font-weight:600; background:var(--surface-2); padding:4px 9px; border-radius:999px;}
 
-  /* Aprender */
-  .crumb{font-size:13px; color:var(--muted); margin-bottom:10px;}
-  .crumb b{color:var(--fg);}
-  .levelchips{display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 22px;}
-  .levelchips button{border:1px solid var(--border); background:var(--surface); color:var(--muted); font-weight:600; font-size:13px; padding:7px 13px; border-radius:999px; cursor:pointer;}
-  .levelchips button.on{background:var(--accent); color:#04120d; border-color:var(--accent);}
-  .module{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; margin-bottom:14px;}
-  .module h3{font-size:17px; display:flex; align-items:center; gap:10px;}
-  .module h3 .num{width:28px;height:28px;border-radius:9px;background:var(--accent-soft);color:var(--accent-strong);display:grid;place-items:center;font-family:var(--font-body);font-size:13px;font-weight:800;flex:none;}
-  .lessons{list-style:none; padding:0; margin:12px 0 0; display:flex; flex-direction:column; gap:2px;}
-  .lessons li{display:flex; align-items:center; gap:10px; padding:9px 8px; border-radius:9px; font-size:14px;}
-  .lessons li:hover{background:var(--surface-2);}
-  .lessons li .state{width:18px;height:18px;flex:none;border-radius:50%;border:2px solid var(--border);display:grid;place-items:center;}
-  .lessons li.done .state{background:var(--accent); border-color:var(--accent);}
-  .lessons li.done .state svg{width:11px;height:11px;color:#04120d;}
-  .lessons li .time{margin-left:auto; font-size:12px; color:var(--muted); font-variant-numeric:tabular-nums;}
-  .mfoot{margin-top:12px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;}
-  .mini-bar{flex:1; min-width:120px; height:8px; background:var(--surface-2); border:1px solid var(--border); border-radius:999px; overflow:hidden;}
-  .mini-bar>i{display:block;height:100%;background:var(--accent);}
+  .group{margin-top:30px;}
+  .group .gh{display:flex; align-items:center; gap:10px; margin-bottom:12px;}
+  .group .gh .dot{width:13px;height:13px;border-radius:50%;background:var(--tc);flex:none;}
+  .group .gh h3{font-size:19px;}
+  .group .gh span{font-size:13px;color:var(--muted);}
+
+  /* Lección */
+  .backbtn{border:1px solid var(--border); background:var(--surface); color:var(--fg); border-radius:9px; padding:7px 12px; font-size:13px; font-weight:600; cursor:pointer; display:inline-flex; gap:6px; align-items:center; align-self:flex-start;}
+  .backbtn:hover{border-color:var(--accent);}
+  .backbtn svg{width:15px;height:15px}
+  .lesson-head{display:flex; flex-direction:column; gap:12px; margin-bottom:20px;}
+  .catbadge{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:var(--cc); background:color-mix(in srgb,var(--cc) 15%,var(--surface)); padding:5px 11px; border-radius:999px; align-self:flex-start;}
+  .lesson-title{display:flex; align-items:center; gap:14px;}
+  .lesson-title .ic{width:52px;height:52px;border-radius:14px;display:grid;place-items:center;color:var(--tc);background:color-mix(in srgb,var(--tc) 16%,var(--surface));flex:none;}
+  .lesson-title .ic svg{width:28px;height:28px}
+  .lesson-title h2{font-size:clamp(24px,3.6vw,34px);}
+  .lesson-grid{display:grid; grid-template-columns:1.35fr .65fr; gap:24px;}
+  .block{margin-bottom:20px;}
+  .block h3{font-size:17px; margin-bottom:6px; display:flex; align-items:center; gap:8px;}
+  .block h3::before{content:""; width:8px; height:8px; border-radius:2px; background:var(--tc);}
+  .block p{font-size:15px; color:var(--fg);}
+  .aside .card{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:16px; margin-bottom:14px;}
+  .frasecard{border-left:4px solid var(--tc);}
+  .frasecard .lab{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+  .frasecard .f{font-family:var(--font-display); font-size:18px; font-weight:700; margin-top:6px;}
+  .keypoints{list-style:none; padding:0; margin:10px 0 0; display:flex; flex-direction:column; gap:9px;}
+  .keypoints li{display:flex; gap:9px; font-size:13.5px;}
+  .keypoints li svg{width:17px;height:17px;color:var(--tc);flex:none;margin-top:2px;}
+  .cardlab{font-size:11px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);margin-bottom:4px}
+  .rel-terms{display:flex; flex-wrap:wrap; gap:6px; margin-top:8px;}
+  .rel-terms button{font-size:12.5px; font-weight:600; background:var(--surface-2); color:var(--fg); border:0; padding:6px 11px; border-radius:999px; cursor:pointer;}
+  .rel-terms button:hover{background:var(--accent-soft); color:var(--accent-strong);}
+  .lessonnav{display:flex; justify-content:space-between; gap:10px; margin-top:8px; border-top:1px solid var(--border); padding-top:18px;}
+  .lessonnav .navbtn{border:1px solid var(--border); background:var(--surface); color:var(--fg); border-radius:11px; padding:11px 14px; cursor:pointer; font-size:13.5px; font-weight:600; max-width:48%; text-align:left;}
+  .lessonnav .navbtn:hover{border-color:var(--accent);}
+  .lessonnav .navbtn small{display:block; color:var(--muted); font-weight:600; font-size:11px;}
+  .lessonnav .navbtn.next{text-align:right;}
 
   .panel{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:20px;}
-  .panel h3{font-size:18px; margin-bottom:6px;}
-  .lesson-body{font-size:14.5px;}
-  .lesson-body p{margin-bottom:10px;}
-  .lesson-body .term{color:var(--accent-strong); font-weight:600; border-bottom:1px dashed var(--accent); cursor:help;}
-  .callout{background:var(--surface-2); border-left:3px solid var(--accent); border-radius:8px; padding:12px 14px; font-size:13.5px; color:var(--muted); margin-top:4px;}
-
   .quiz .qmeta{font-size:12px; color:var(--muted); font-weight:700; margin-bottom:10px;}
   .quiz .q{font-size:16px; font-weight:600; margin-bottom:12px;}
   .opts{display:flex; flex-direction:column; gap:8px;}
@@ -167,7 +182,6 @@
   .feedback{margin-top:14px; font-size:14px; padding:12px 14px; border-radius:10px; background:var(--surface-2);}
   .feedback b{color:var(--accent-strong);}
 
-  /* Mercado */
   .market-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:14px;}
   .mcard{background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); padding:18px; border-top:4px solid var(--tc,var(--accent));}
   .mcard .top{display:flex; align-items:center; justify-content:space-between;}
@@ -181,7 +195,6 @@
   .badge-var.neg{background:color-mix(in srgb,var(--neg) 16%,transparent); color:var(--neg);}
   .badge-var.flat{background:var(--surface-2); color:var(--muted);}
 
-  /* Glosario */
   .searchbox{position:relative; margin:18px 0; max-width:460px;}
   .searchbox input{width:100%; padding:13px 14px 13px 42px; border-radius:12px; border:1px solid var(--border); background:var(--surface); color:var(--fg); font-size:15px;}
   .searchbox input:focus{outline:2px solid var(--accent); outline-offset:1px; border-color:var(--accent);}
@@ -194,7 +207,6 @@
   .gterm .rel{margin-top:10px; font-size:12px; color:var(--muted);}
   .noresult{color:var(--muted); font-size:14px;}
 
-  /* Mis avances */
   .lock{display:grid; place-items:center; text-align:center; padding:48px 20px;}
   .lock .box{max-width:460px; display:flex; flex-direction:column; align-items:center; gap:14px;}
   .lock .bigic{width:68px;height:68px;border-radius:20px;background:var(--grad);display:grid;place-items:center;color:#fff;box-shadow:0 14px 30px -12px #2563EB88;}
@@ -217,7 +229,6 @@
   .badge.off{opacity:.5}
   .badge.off .b-ic{background:var(--muted)!important}
 
-  /* Modal login */
   .overlay{position:fixed; inset:0; background:#0b1620aa; backdrop-filter:blur(3px); z-index:50; display:grid; place-items:center; padding:20px;}
   .modal{background:var(--surface); color:var(--fg); border-radius:18px; width:100%; max-width:400px; overflow:hidden; border:1px solid var(--border); box-shadow:0 30px 70px -20px #000a;}
   .modal .mh{padding:22px 22px 10px; text-align:center;}
@@ -247,8 +258,9 @@
   @media (max-width:860px){
     .hero{padding:26px;}
     .hero .inner{grid-template-columns:1fr;}
-    .cols{grid-template-columns:1fr;}
+    .lesson-grid{grid-template-columns:1fr;}
     .strip{grid-template-columns:repeat(2,1fr);}
+    .rfrv{grid-template-columns:1fr;}
     nav.tabs{order:4; width:100%; margin-left:0; overflow-x:auto;}
     .topbar .wrap{flex-wrap:wrap;}
     .userchip .nm,.userchip .em{display:none}
@@ -257,7 +269,7 @@
 
 <header class="topbar">
   <div class="wrap">
-    <div class="brand">
+    <div class="brand" data-goto="inicio">
       <span class="logo" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M4 18 L10 11 L14 15 L20 7"/><path d="M15 7h5v5"/></svg></span>
       Plata&nbsp;Clara
     </div>
@@ -278,7 +290,7 @@
 </header>
 
 <div class="mockbanner">
-  <div class="wrap">Maqueta de diseño · datos de mercado de ejemplo · el login con Google es una simulación (no pide contraseña ni se conecta de verdad)</div>
+  <div class="wrap">Maqueta de diseño · datos de mercado de ejemplo · login con Google simulado (no pide contraseña)</div>
 </div>
 
 <!-- ===================== INICIO ===================== -->
@@ -290,11 +302,11 @@
         <div>
           <span class="eyebrow">Educación financiera gratuita</span>
           <h1>Aprendé a manejar tu plata, <em>sin vueltas.</em></h1>
-          <p class="lead">Qué es una acción, una cripto, el dólar, un plazo fijo o un fondo común. Y qué significan el IPC, la UVA o el PBI. En castellano, desde cero, para cualquiera.</p>
+          <p class="lead">Qué es una acción, una cripto, el dólar, un plazo fijo o un fondo común. Renta fija y renta variable, explicadas desde cero. En castellano, para cualquiera.</p>
           <div class="cta-row">
-            <button class="btn primary" data-goto="aprender">Empezar a aprender</button>
+            <button class="btn primary" data-aprender>Empezar a aprender</button>
             <button class="btn ghost" data-login>
-              <svg class="gmini" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>
               Entrar con Google
             </button>
           </div>
@@ -311,7 +323,7 @@
     <div style="margin-top:46px;">
       <div class="sectionhead">
         <div><span class="eyebrow">Mercado hoy</span><h2>Los números del día</h2></div>
-        <button class="btn ghost" data-goto="mercado" style="font-size:13px;padding:8px 14px;">Ver todo</button>
+        <button class="btn ghost sm" data-goto="mercado">Ver todo</button>
       </div>
       <div class="strip">
         <div class="tile" style="--tc:var(--blue)"><div class="k">Dólar oficial</div><div class="v">$1.035</div><div class="d pos">▲ 0,3%</div></div>
@@ -323,78 +335,17 @@
     </div>
 
     <div style="margin-top:46px;">
-      <div class="sectionhead"><div><span class="eyebrow">Temario</span><h2>Explorá por tema</h2></div></div>
+      <div class="sectionhead"><div><span class="eyebrow">Temario</span><h2>Explorá por tema</h2></div>
+        <button class="btn ghost sm" data-aprender>Ver el curso completo</button>
+      </div>
       <div class="grid-temas" id="temasGrid"></div>
     </div>
   </div>
 </section>
 
-<!-- ===================== APRENDER ===================== -->
+<!-- ===================== APRENDER (dinámico) ===================== -->
 <section class="view" id="aprender" hidden>
-  <div class="wrap">
-    <div class="crumb">Aprender · <b>Acciones</b></div>
-    <span class="eyebrow" style="color:var(--accent-strong)">Tema · nivel principiante</span>
-    <h2 style="font-size:clamp(24px,3.5vw,32px);margin-top:6px;">Acciones</h2>
-    <p class="muted" style="max-width:60ch;margin-top:8px;">Qué es ser dueño de una parte de una empresa, cómo se compran y por qué su precio sube y baja.</p>
-
-    <div class="levelchips" id="levelChips">
-      <button class="on">Todos</button><button>Principiante</button><button>Intermedio</button><button>Avanzado</button>
-    </div>
-
-    <div class="cols">
-      <div>
-        <div class="module">
-          <h3><span class="num">1</span> ¿Qué es una acción?</h3>
-          <ul class="lessons">
-            <li class="done"><span class="state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg></span> Ser dueño de un pedacito de empresa <span class="time">4 min</span></li>
-            <li class="done"><span class="state"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg></span> Acciones vs. bonos <span class="time">5 min</span></li>
-            <li><span class="state"></span> ¿De dónde sale la ganancia? <span class="time">6 min</span></li>
-          </ul>
-          <div class="mfoot"><div class="mini-bar"><i style="width:66%"></i></div><span class="muted" style="font-size:12px;">2/3 lecciones</span></div>
-        </div>
-        <div class="module">
-          <h3><span class="num">2</span> Cómo se compran y se venden</h3>
-          <ul class="lessons">
-            <li><span class="state"></span> Qué es un bróker y una cuenta comitente <span class="time">5 min</span></li>
-            <li><span class="state"></span> El mercado en Argentina (BYMA) <span class="time">6 min</span></li>
-            <li><span class="state"></span> Comisiones y costos <span class="time">4 min</span></li>
-          </ul>
-          <div class="mfoot"><div class="mini-bar"><i style="width:0%"></i></div><span class="muted" style="font-size:12px;">0/3 lecciones</span></div>
-        </div>
-        <div class="module">
-          <h3><span class="num">3</span> Riesgo y rendimiento</h3>
-          <ul class="lessons">
-            <li><span class="state"></span> Por qué el precio sube y baja <span class="time">5 min</span></li>
-            <li><span class="state"></span> Diversificar: no poner todo en una <span class="time">6 min</span></li>
-          </ul>
-          <div class="mfoot"><div class="mini-bar"><i style="width:0%"></i></div><span class="muted" style="font-size:12px;">0/2 lecciones</span></div>
-        </div>
-      </div>
-      <div>
-        <div class="panel" style="margin-bottom:16px;">
-          <span class="eyebrow">Lección</span>
-          <h3>Ser dueño de un pedacito de empresa</h3>
-          <div class="lesson-body" style="margin-top:8px;">
-            <p>Cuando comprás una <span class="term" title="Parte de la propiedad de una empresa.">acción</span>, te convertís en dueño de una parte muy chiquita de una empresa. Si a la empresa le va bien y vale más, tu parte también vale más.</p>
-            <p>Es distinto de un <span class="term" title="Un préstamo que le hacés a una empresa o al Estado a cambio de intereses.">bono</span>: ahí no sos dueño, sino que prestás plata a cambio de un interés.</p>
-            <div class="callout">💡 En Argentina muchas personas invierten en acciones del exterior a través de <span class="term" title="Certificado que representa una acción extranjera, negociable en pesos.">CEDEARs</span>, sin sacar la plata del país.</div>
-          </div>
-        </div>
-        <div class="panel quiz" id="quiz">
-          <span class="eyebrow">Quiz del módulo</span>
-          <h3>Poné a prueba lo que aprendiste</h3>
-          <p class="qmeta">Pregunta 1 de 5</p>
-          <p class="q">¿Qué representa una acción?</p>
-          <div class="opts" id="opts">
-            <button class="opt" data-correct="false"><span class="mk">A</span> Un préstamo que le hacés a una empresa.</button>
-            <button class="opt" data-correct="true"><span class="mk">B</span> Una parte de la propiedad de una empresa.</button>
-            <button class="opt" data-correct="false"><span class="mk">C</span> Un plazo fijo pero en dólares.</button>
-          </div>
-          <div class="feedback" id="feedback" hidden></div>
-        </div>
-      </div>
-    </div>
-  </div>
+  <div class="wrap"><div id="aprenderContent"></div></div>
 </section>
 
 <!-- ===================== MERCADO ===================== -->
@@ -411,7 +362,7 @@
       <div class="mcard" style="--tc:var(--pink)"><div class="top"><h3>UVA</h3><span class="badge-var pos">▲ 0,1%</span></div><div class="big">$1.350,27</div><div class="cv"><div>Unidad de Valor Adquisitivo</div></div><div class="src">Fuente: ejemplo · hoy</div></div>
       <div class="mcard" style="--tc:var(--amber)"><div class="top"><h3>Plazo fijo (TNA)</h3><span class="badge-var flat">ref.</span></div><div class="big">35%</div><div class="cv"><div>Tasa nominal anual de referencia</div></div><div class="src">Fuente: ejemplo</div></div>
     </div>
-    <div class="callout" style="margin-top:20px;max-width:70ch;">¿No entendés alguno de estos términos? Están explicados en el <a href="#" data-goto="glosario">glosario</a> en palabras simples.</div>
+    <div class="callout" style="margin-top:20px;max-width:70ch;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;font-size:13.5px;color:var(--muted);">¿No entendés alguno de estos términos? Están explicados en el <a href="#" data-goto="glosario">glosario</a> en palabras simples.</div>
   </div>
 </section>
 
@@ -465,15 +416,224 @@
   var DEMO={name:"María López", email:"maria.lopez@gmail.com", initials:"ML"};
   var state={ user:null };
 
+  function gIcon(s){ return '<svg viewBox="0 0 24 24" width="'+(s||18)+'" height="'+(s||18)+'" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>'; }
+  function svg(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; }
+  var CHECK='<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l4 4L19 6"/></svg>';
+
   // ---- Tema ----
   try{ var st=localStorage.getItem("pc-theme"); if(st) root.setAttribute("data-theme",st); }catch(e){}
   document.getElementById("themeBtn").addEventListener("click",function(){
     var cur=root.getAttribute("data-theme");
     var isDark = cur ? cur==="dark" : window.matchMedia("(prefers-color-scheme: dark)").matches;
-    var next=isDark?"light":"dark";
-    root.setAttribute("data-theme",next);
+    var next=isDark?"light":"dark"; root.setAttribute("data-theme",next);
     try{ localStorage.setItem("pc-theme",next); }catch(e){}
   });
+
+  // ---- Categorías y cursos ----
+  var CAT={
+    rf:{n:"Renta fija", c:"var(--blue)", d:"Le prestás plata a alguien (un banco, una empresa, el Estado) y te la devuelve con un interés pactado. Sabés, en condiciones normales, cuánto y cuándo vas a cobrar: más previsible y de menor riesgo, pero con un rendimiento más acotado.", ej:["Plazo fijo","Bonos","Obligaciones Negociables","FCI money market"], ic:'<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M8 9V7a4 4 0 0 1 8 0v2"/>'},
+    rv:{n:"Renta variable", c:"var(--violet)", d:"Comprás una parte de un activo (una empresa, una cripto) y tu resultado depende de cómo le vaya: no hay rendimiento asegurado. Podés ganar más que en renta fija, pero también podés perder. Más riesgo, más potencial.", ej:["Acciones","CEDEARs","Criptomonedas","FCI de acciones"], ic:'<path d="M4 18 L10 11 L14 15 L20 7"/><path d="M15 7h5v5"/>'},
+    fondos:{n:"Fondos (FCI)", c:"#4F46E5", d:"Invertís en conjunto con otras personas y lo administra un profesional.", ej:[], ic:'<path d="M12 3v9l6 4"/><circle cx="12" cy="12" r="9"/>'},
+    ma:{n:"Macro y ahorro", c:"var(--accent)", d:"No son instrumentos para invertir, sino variables y refugios que conviene entender.", ej:[], ic:'<path d="M4 20h16"/><rect x="6" y="12" width="3" height="6"/><rect x="11" y="8" width="3" height="10"/><rect x="16" y="4" width="3" height="14"/>'}
+  };
+
+  var CURSOS={
+    acciones:{t:"Acciones", cat:"rv", c:"var(--accent)", nivel:"Principiante", ic:'<path d="M4 18 L10 11 L14 15 L20 7"/><path d="M15 7h5v5"/>',
+      frase:"Ser dueño de un pedacito de una empresa.",
+      corta:"Ser dueño de una parte de una empresa.",
+      bloques:[
+        {h:"¿Qué es?", p:"Una acción es una parte muy chiquita de la propiedad de una empresa. Cuando comprás acciones, te convertís en socio en miniatura de esa empresa."},
+        {h:"¿Cómo se gana (o se pierde)?", p:"De dos maneras: si el precio de la acción sube y la vendés más cara (ganancia de capital), y por los dividendos, que son una parte de las ganancias que la empresa reparte entre sus accionistas."},
+        {h:"Riesgo y rendimiento", p:"Es renta variable: nadie te asegura cuánto vas a ganar. El precio sube y baja todos los días según cómo le va a la empresa y a la economía. Podés ganar mucho, pero también perder parte de lo invertido."},
+        {h:"En Argentina", p:"Se compran y venden en el mercado local (BYMA) a través de un bróker, abriendo una cuenta comitente. Hay acciones de empresas argentinas y también podés acceder a las del exterior con CEDEARs."}
+      ],
+      claves:["Sos dueño de una parte de la empresa","Ganás por suba de precio y por dividendos","Renta variable: sin rendimiento asegurado"],
+      rel:["CEDEAR","Riesgo","Diversificación"],
+      quiz:{q:"¿De qué dos formas podés ganar con una acción?", opts:[{t:"Solo si la empresa quiebra",ok:false},{t:"Por la suba del precio y por los dividendos",ok:true},{t:"Por un interés fijo mensual",ok:false}], fb:"Ganás si el precio sube y además por los dividendos que reparte la empresa. El interés fijo es de la renta fija."}
+    },
+    cedears:{t:"CEDEARs", cat:"rv", c:"var(--pink)", nivel:"Principiante", ic:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+      frase:"Acciones del exterior, compradas en pesos.",
+      corta:"Acciones del exterior, en pesos.",
+      bloques:[
+        {h:"¿Qué es?", p:"Un CEDEAR (Certificado de Depósito Argentino) representa una acción de una empresa extranjera —como Apple, Tesla o Coca-Cola— pero cotiza en pesos en el mercado argentino."},
+        {h:"¿Cómo funciona?", p:"Comprás en pesos y tu inversión sigue dos cosas: el precio de la acción en el exterior y el valor del dólar (CCL). Así tenés exposición a empresas globales y al dólar sin sacar la plata del país."},
+        {h:"Riesgo y rendimiento", p:"Es renta variable: sumás el riesgo de la acción y el del tipo de cambio. Si la acción sube o el dólar sube, te favorece; si bajan, te perjudica."}
+      ],
+      claves:["Representan acciones del exterior","Se compran en pesos, en Argentina","Te dan exposición al dólar"],
+      rel:["Acción","Dólar MEP"],
+      quiz:{q:"¿Qué permite un CEDEAR?", opts:[{t:"Invertir en acciones del exterior pagando en pesos",ok:true},{t:"Un plazo fijo garantizado por el Estado",ok:false},{t:"Comprar dólar billete en el banco",ok:false}], fb:"Un CEDEAR te deja invertir en empresas del exterior, en pesos y desde Argentina."}
+    },
+    cripto:{t:"Criptomonedas", cat:"rv", c:"var(--violet)", nivel:"Principiante", ic:'<circle cx="12" cy="12" r="8"/><path d="M9.5 8.5h4a2 2 0 0 1 0 4h-4m0 0h4.3a2 2 0 0 1 0 4H9.5m0-8V6.5m0 11V16m2.5-9.5V6m0 12v-.5"/>',
+      frase:"Dinero digital, descentralizado y muy volátil.",
+      corta:"Qué es Bitcoin y cómo funciona.",
+      bloques:[
+        {h:"¿Qué es?", p:"Una criptomoneda es dinero digital que vive en una red llamada blockchain, sin un banco central ni un gobierno que la controle. Las más conocidas son Bitcoin y Ethereum."},
+        {h:"¿Cómo funciona?", p:"Se compran y venden en plataformas (exchanges), las 24 horas. El precio lo fija la oferta y la demanda, y puede cambiar muchísimo en poco tiempo."},
+        {h:"Riesgo y rendimiento", p:"Es de lo más volátil: puede subir o bajar fuerte en pocos días. No tiene respaldo de un Estado y hay que tener cuidado con las estafas y con dónde se guardan las monedas."},
+        {h:"Un apunte útil", p:"Existen las stablecoins (como USDT o USDC), que buscan mantener el valor de un dólar. No todas las cripto se mueven igual."}
+      ],
+      claves:["Dinero digital sin banco central","Muy volátil","Cuidado con estafas y con la custodia"],
+      rel:["Volatilidad","Dólar MEP"],
+      quiz:{q:"¿Qué caracteriza a la mayoría de las criptomonedas?", opts:[{t:"Tienen rendimiento fijo asegurado",ok:false},{t:"Son muy volátiles y no las controla un banco central",ok:true},{t:"Las garantiza el Banco Central argentino",ok:false}], fb:"Son digitales, descentralizadas y suelen ser muy volátiles."}
+    },
+    plazofijo:{t:"Plazo fijo", cat:"rf", c:"var(--amber)", nivel:"Principiante", ic:'<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M8 9V7a4 4 0 0 1 8 0v2"/>',
+      frase:"Prestarle al banco a cambio de un interés fijo.",
+      corta:"Guardar plata a cambio de interés.",
+      bloques:[
+        {h:"¿Qué es?", p:"Dejás una cantidad de plata depositada en el banco por un plazo (por ejemplo 30 días) y el banco te paga un interés pactado de antemano."},
+        {h:"¿Cómo funciona?", p:"Cuando se cumple el plazo, te devuelven tu plata más los intereses. Desde el primer día sabés cuánto vas a cobrar: por eso es el ejemplo más claro de renta fija."},
+        {h:"La variante UVA", p:"El plazo fijo UVA ajusta tu plata por la inflación más un pequeño plus. Suele pedir un plazo mínimo más largo, pero te protege de que los precios suban."},
+        {h:"Riesgo y rendimiento", p:"Es de bajo riesgo (los depósitos están cubiertos por una garantía hasta cierto monto). El verdadero riesgo es que la inflación o el dólar le ganen a la tasa y pierdas poder de compra."}
+      ],
+      claves:["Sabés cuánto cobrás desde el día 1","Bajo riesgo","Ojo: la inflación puede ganarle a la tasa"],
+      rel:["UVA","Inflación"],
+      quiz:{q:"¿Por qué el plazo fijo es renta fija?", opts:[{t:"Porque el interés se pacta de antemano y sabés cuánto vas a cobrar",ok:true},{t:"Porque el rendimiento depende de la bolsa",ok:false},{t:"Porque nunca pierde contra la inflación",ok:false}], fb:"Porque el interés está pactado: sabés cuánto y cuándo vas a cobrar."}
+    },
+    bonos:{t:"Bonos", cat:"rf", c:"#0891B2", nivel:"Intermedio", ic:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>',
+      frase:"Prestarle al Estado o a una empresa a cambio de intereses.",
+      corta:"Prestarle al Estado o a una empresa.",
+      bloques:[
+        {h:"¿Qué es?", p:"Un bono es un préstamo que vos le hacés al Estado o a una empresa. A cambio, te pagan intereses (llamados cupón) y te devuelven el capital en una fecha de vencimiento."},
+        {h:"¿Cómo funciona?", p:"Cada bono tiene un cronograma de pagos. Podés quedártelo y cobrar los cupones, o venderlo antes en el mercado al precio que esté en ese momento."},
+        {h:"Tipos de bonos", p:"Hay bonos soberanos (del Estado nacional), provinciales y corporativos. A los bonos de empresas se los llama Obligaciones Negociables (ON)."},
+        {h:"Riesgo y rendimiento", p:"El riesgo principal es que quien te debe no pague (default), y que el precio baje si querés vender antes de tiempo. En Argentina, el riesgo país mide justamente la desconfianza sobre la deuda del Estado."}
+      ],
+      claves:["Le prestás al Estado o a una empresa","Cobrás intereses (cupón) + el capital","Riesgo: que no te paguen (default)"],
+      rel:["Acción","Riesgo"],
+      quiz:{q:"¿Qué sos cuando comprás un bono?", opts:[{t:"Dueño de la empresa",ok:false},{t:"Prestamista: te deben plata y te pagan intereses",ok:true},{t:"Dueño de un inmueble",ok:false}], fb:"Con un bono prestás plata; no sos dueño. Dueño serías con una acción."}
+    },
+    fci:{t:"Fondos (FCI)", cat:"fondos", c:"#4F46E5", nivel:"Principiante", ic:'<path d="M12 3v9l6 4"/><circle cx="12" cy="12" r="9"/>',
+      frase:"Invertir en conjunto, administrado por profesionales, desde poca plata.",
+      corta:"Invertir junto a otros, de a poco.",
+      bloques:[
+        {h:"¿Qué es?", p:"Un Fondo Común de Inversión (FCI) junta tu plata con la de muchas otras personas, y un equipo profesional la invierte por vos en un montón de activos a la vez."},
+        {h:"¿Cómo funciona?", p:"Comprás cuotapartes del fondo. El valor de tu cuotaparte sube o baja según cómo le va a la cartera del fondo. Podés empezar con montos chicos."},
+        {h:"Tipos (importante)", p:"Hay fondos money market (muy conservadores, con liquidez casi inmediata), de renta fija, de renta variable y mixtos. Por eso un FCI puede ser de renta fija O de renta variable, según en qué invierta."},
+        {h:"Riesgo y rendimiento", p:"Depende del tipo de fondo: un money market es muy tranquilo; uno de acciones, mucho más movido. Conviene mirar siempre en qué invierte antes de elegir."}
+      ],
+      claves:["Invertís en conjunto, lo maneja un profesional","Desde montos chicos","El riesgo depende del tipo de fondo"],
+      rel:["Riesgo","Diversificación"],
+      quiz:{q:"¿Un FCI es siempre renta fija?", opts:[{t:"No: puede ser de renta fija o variable según en qué invierta",ok:true},{t:"Sí, siempre es renta fija",ok:false},{t:"Sí, siempre es renta variable",ok:false}], fb:"Depende del fondo: los hay conservadores (money market, renta fija) y de renta variable."}
+    },
+    dolar:{t:"El dólar", cat:"ma", c:"var(--blue)", nivel:"Principiante", ic:'<path d="M12 2v20"/><path d="M16 6.5C16 4.6 14 4 12 4S8 4.6 8 7s2 3 4 3.5 4 1.3 4 3.5-2 3-4 3-4-.6-4-2.5"/>',
+      frase:"La forma más común de ahorrar en moneda dura en Argentina.",
+      corta:"Oficial, blue, MEP, CCL: qué es cada uno.",
+      bloques:[
+        {h:"¿Por qué importa?", p:"Para muchas personas en Argentina, comprar dólares es la manera de protegerse de la inflación y de la devaluación del peso."},
+        {h:"Los distintos dólares", p:"Oficial (el del banco, con límites), MEP o bolsa (legal, comprando y vendiendo bonos), CCL o contado con liqui (para dejar los dólares afuera), blue (mercado informal) y el dólar tarjeta (consumos en el exterior)."},
+        {h:"¿Cómo se accede legalmente?", p:"La forma habitual y legal de dolarizarse desde una cuenta de inversión es el dólar MEP, operando con bonos o a través de tu bróker."}
+      ],
+      claves:["Es un refugio contra la inflación","Hay varios: oficial, MEP, CCL, blue","El MEP es la vía legal más usada para dolarizarse"],
+      rel:["Dólar MEP","Dólar blue","Inflación"],
+      quiz:{q:"¿Cuál es una forma legal de comprar dólares para inversión?", opts:[{t:"El dólar MEP, operando con bonos",ok:true},{t:"El dólar blue",ok:false},{t:"Ninguna es legal",ok:false}], fb:"El dólar MEP es la vía legal habitual. El blue es del mercado informal."}
+    },
+    inflacion:{t:"Inflación e IPC", cat:"ma", c:"var(--neg)", nivel:"Principiante", ic:'<path d="M4 16 L10 10 L14 13 L20 5"/><path d="M15 5h5v5"/>',
+      frase:"Cuánto suben los precios y cuánto pierde valor tu plata.",
+      corta:"Por qué la plata pierde valor.",
+      bloques:[
+        {h:"¿Qué es la inflación?", p:"Es la suba general y sostenida de los precios. Con el tiempo, con la misma plata comprás menos cosas."},
+        {h:"¿Qué es el IPC?", p:"El Índice de Precios al Consumidor es el número que publica el INDEC todos los meses y que mide cuánto subieron los precios en promedio."},
+        {h:"¿Por qué te importa?", p:"Si tu plata o tu inversión rinde menos que la inflación, estás perdiendo poder de compra aunque tengas más pesos que antes. Ganarle a la inflación es el objetivo mínimo de cualquier ahorro."}
+      ],
+      claves:["Inflación = suba general de precios","El IPC (INDEC) la mide cada mes","Si no le ganás, perdés poder de compra"],
+      rel:["IPC","UVA"],
+      quiz:{q:"Si tu inversión rinde menos que la inflación...", opts:[{t:"Ganás poder de compra",ok:false},{t:"Perdés poder de compra aunque tengas más pesos",ok:true},{t:"No pasa nada",ok:false}], fb:"Aunque tengas más pesos, si rinden menos que la inflación comprás menos que antes."}
+    },
+    uva:{t:"UVA", cat:"ma", c:"#C026D3", nivel:"Intermedio", ic:'<path d="M12 21s-7-4.5-7-10a7 7 0 0 1 14 0c0 5.5-7 10-7 10z"/><circle cx="12" cy="11" r="2.4"/>',
+      frase:"Una unidad que se mueve con la inflación.",
+      corta:"La unidad que ajusta por inflación.",
+      bloques:[
+        {h:"¿Qué es?", p:"La UVA (Unidad de Valor Adquisitivo) es una unidad cuyo valor se actualiza todos los días según la inflación."},
+        {h:"¿Para qué se usa?", p:"Se usa en créditos hipotecarios UVA, plazos fijos UVA y algunos contratos. Sirve para que los montos no queden desactualizados cuando los precios suben."},
+        {h:"Una idea para tener clara", p:"Como la UVA sigue a la inflación, lo que está expresado en UVA mantiene su poder de compra en el tiempo; pero ojo, las cuotas de un crédito UVA también suben con la inflación."}
+      ],
+      claves:["Se ajusta por inflación, todos los días","Se usa en créditos y plazos fijos UVA","Mantiene el poder de compra"],
+      rel:["Inflación","Plazo fijo"],
+      quiz:{q:"¿Según qué se ajusta la UVA?", opts:[{t:"Según la inflación",ok:true},{t:"Según el precio del dólar blue",ok:false},{t:"Según la bolsa de Nueva York",ok:false}], fb:"La UVA se actualiza según la inflación (índice CER)."}
+    },
+    pbi:{t:"PBI", cat:"ma", c:"#65A30D", nivel:"Intermedio", ic:'<path d="M4 20h16"/><rect x="6" y="12" width="3" height="6"/><rect x="11" y="8" width="3" height="10"/><rect x="16" y="4" width="3" height="14"/>',
+      frase:"Cuánto produce un país.",
+      corta:"Qué mide y por qué importa.",
+      bloques:[
+        {h:"¿Qué es?", p:"El PBI (Producto Bruto Interno) es el valor de todos los bienes y servicios que produce un país en un período, por ejemplo un año o un trimestre."},
+        {h:"¿Por qué importa?", p:"Mide el tamaño de la economía y si está creciendo o cayendo. Si el PBI crece, en general el país produce más y suele haber más actividad y empleo."},
+        {h:"Cómo se lo suele leer", p:"Se mira sobre todo su variación: cuánto creció o cayó respecto del período anterior o del mismo período del año pasado."}
+      ],
+      claves:["Es el valor de todo lo que produce un país","Mide el tamaño y el crecimiento de la economía","Se mira su variación (creció/cayó)"],
+      rel:["Inflación"],
+      quiz:{q:"¿Qué mide el PBI?", opts:[{t:"El valor de todo lo que produce un país",ok:true},{t:"La cantidad de dólares en el Banco Central",ok:false},{t:"El precio de las acciones",ok:false}], fb:"El PBI mide el valor de todo lo que produce un país en un período."}
+    }
+  };
+  var ORDER=["acciones","cedears","cripto","plazofijo","bonos","fci","dolar","inflacion","uva","pbi"];
+  var GROUPS=[["rf",["plazofijo","bonos"]],["rv",["acciones","cedears","cripto"]],["fondos",["fci"]],["ma",["dolar","inflacion","uva","pbi"]]];
+
+  // ---- Home: grilla de temas ----
+  document.getElementById("temasGrid").innerHTML=ORDER.map(function(k){
+    var x=CURSOS[k];
+    return '<button class="tema" data-lesson="'+k+'" style="--tc:'+x.c+'"><span class="ic">'+svg(x.ic)+'</span><h3>'+x.t+'</h3><p>'+x.corta+'</p><span class="lvl">'+x.nivel+'</span></button>';
+  }).join("");
+
+  // ---- Aprender: índice y lección ----
+  var lessonKey=null;
+  var aprenderContent=document.getElementById("aprenderContent");
+
+  function indexHTML(){
+    var html='<span class="eyebrow">El curso</span>'+
+      '<h2 style="font-size:clamp(24px,3.6vw,34px);margin:6px 0 4px;">Educación financiera, paso a paso</h2>'+
+      '<p class="muted" style="max-width:66ch;margin-bottom:22px;">Antes de ver cada instrumento, la base: casi todo lo que se invierte cae en dos grandes familias.</p>'+
+      '<div class="rfrv">'+
+        rfrvBox("rf")+rfrvBox("rv")+
+      '</div>'+
+      '<p class="muted" style="font-size:13px;margin:6px 0 2px;">Además de estas dos familias, están los <b>fondos</b> (que pueden ser de una u otra) y las <b>variables macro</b> que conviene entender. Elegí un tema para empezar:</p>';
+    GROUPS.forEach(function(g){
+      var cat=CAT[g[0]];
+      html+='<div class="group" style="--tc:'+cat.c+'"><div class="gh"><span class="dot"></span><h3>'+cat.n+'</h3><span>'+g[1].length+' tema'+(g[1].length>1?'s':'')+'</span></div><div class="grid-temas">'+
+        g[1].map(function(k){ var x=CURSOS[k]; return '<button class="tema" data-lesson="'+k+'" style="--tc:'+x.c+'"><span class="ic">'+svg(x.ic)+'</span><h3>'+x.t+'</h3><p>'+x.corta+'</p><span class="lvl">'+x.nivel+'</span></button>'; }).join("")+
+      '</div></div>';
+    });
+    return html;
+  }
+  function rfrvBox(key){
+    var c=CAT[key];
+    return '<div class="box" style="--tc:'+c.c+'"><h3><span class="ic">'+svg(c.ic)+'</span>'+c.n+'</h3><p>'+c.d+'</p><ul>'+c.ej.map(function(e){return '<li>'+e+'</li>';}).join("")+'</ul></div>';
+  }
+
+  function lessonHTML(k){
+    var x=CURSOS[k], cat=CAT[x.cat];
+    var i=ORDER.indexOf(k), prev=i>0?ORDER[i-1]:null, next=i<ORDER.length-1?ORDER[i+1]:null;
+    var bloques=x.bloques.map(function(b){ return '<div class="block"><h3>'+b.h+'</h3><p>'+b.p+'</p></div>'; }).join("");
+    var claves=x.claves.map(function(c){ return '<li>'+CHECK+'<span>'+c+'</span></li>'; }).join("");
+    var rel=x.rel.map(function(r){ return '<button data-term="'+r+'">'+r+'</button>'; }).join("");
+    var q=x.quiz;
+    var opts=q.opts.map(function(o,idx){ return '<button class="opt" data-correct="'+(o.ok?"true":"false")+'"><span class="mk">'+String.fromCharCode(65+idx)+'</span> '+o.t+'</button>'; }).join("");
+    var nav='<div class="lessonnav">'+
+      (prev?'<button class="navbtn prev" data-lesson="'+prev+'"><small>Anterior</small>'+CURSOS[prev].t+'</button>':'<span></span>')+
+      (next?'<button class="navbtn next" data-lesson="'+next+'"><small>Siguiente</small>'+CURSOS[next].t+'</button>':'<span></span>')+
+    '</div>';
+    return ''+
+      '<div class="lesson-head" style="--tc:'+x.c+';--cc:'+cat.c+'">'+
+        '<button class="backbtn" data-aprender>'+svg('<path d="M15 18l-6-6 6-6"/>')+' Volver al curso</button>'+
+        '<span class="catbadge">'+cat.n+'</span>'+
+        '<div class="lesson-title"><span class="ic">'+svg(x.ic)+'</span><h2>'+x.t+'</h2></div>'+
+      '</div>'+
+      '<div class="lesson-grid" style="--tc:'+x.c+'">'+
+        '<div>'+bloques+
+          '<div class="panel quiz" data-quiz="'+k+'" style="margin-top:6px"><span class="eyebrow">Mini quiz</span><h3 style="font-size:17px;margin:4px 0 2px">¿Lo pescaste?</h3><p class="qmeta">1 pregunta</p><p class="q">'+q.q+'</p><div class="opts">'+opts+'</div><div class="feedback" hidden></div></div>'+
+          nav+
+        '</div>'+
+        '<div class="aside">'+
+          '<div class="card frasecard"><div class="lab">En una frase</div><div class="f">'+x.frase+'</div></div>'+
+          '<div class="card"><div class="cardlab">Claves</div><ul class="keypoints">'+claves+'</ul></div>'+
+          '<div class="card"><div class="cardlab">Términos relacionados</div><div class="rel-terms">'+rel+'</div></div>'+
+        '</div>'+
+      '</div>';
+  }
+
+  function renderAprender(k){
+    lessonKey=k||null;
+    aprenderContent.innerHTML = k ? lessonHTML(k) : indexHTML();
+    if(k) window.scrollTo({top:0,behavior:"auto"});
+  }
 
   // ---- Navegación ----
   var tabs=document.getElementById("tabs");
@@ -483,37 +643,44 @@
     if(id==="avances") renderAvances();
     window.scrollTo({top:0,behavior:"smooth"});
   }
-  tabs.addEventListener("click",function(e){ var b=e.target.closest("button[data-target]"); if(b) show(b.getAttribute("data-target")); });
-  document.addEventListener("click",function(e){ var g=e.target.closest("[data-goto]"); if(g){ e.preventDefault(); show(g.getAttribute("data-goto")); } });
+  tabs.addEventListener("click",function(e){ var b=e.target.closest("button[data-target]"); if(!b)return; var t=b.getAttribute("data-target"); if(t==="aprender") renderAprender(null); show(t); });
 
-  // ---- Login (simulado) ----
-  document.addEventListener("click",function(e){ if(e.target.closest("[data-login]")) openLogin(); });
+  document.addEventListener("click",function(e){
+    if(e.target.closest("[data-login]")){ openLogin(); return; }
+    var lz=e.target.closest("[data-lesson]"); if(lz){ e.preventDefault(); renderAprender(lz.getAttribute("data-lesson")); show("aprender"); return; }
+    if(e.target.closest("[data-aprender]")){ e.preventDefault(); renderAprender(null); show("aprender"); return; }
+    var term=e.target.closest("[data-term]"); if(term){ e.preventDefault(); show("glosario"); var inp=document.getElementById("glsearch"); if(inp){ inp.value=term.getAttribute("data-term"); renderGloss(inp.value);} return; }
+    var g=e.target.closest("[data-goto]"); if(g){ e.preventDefault(); var t=g.getAttribute("data-goto"); if(t==="aprender") renderAprender(null); show(t); return; }
+  });
+
+  // Quiz (delegado)
+  aprenderContent.addEventListener("click",function(e){
+    var opt=e.target.closest(".opt"); if(!opt)return;
+    var box=opt.closest("[data-quiz]"); if(!box||box.dataset.answered)return;
+    box.dataset.answered="1";
+    var correct=opt.getAttribute("data-correct")==="true";
+    box.querySelectorAll(".opt").forEach(function(o){ if(o.getAttribute("data-correct")==="true") o.classList.add("correct"); });
+    if(!correct) opt.classList.add("wrong");
+    var fb=box.querySelector(".feedback"); var q=CURSOS[box.getAttribute("data-quiz")].quiz;
+    fb.hidden=false;
+    fb.innerHTML=(correct?"<b>¡Correcto! ✓</b> ":"<b>Casi.</b> ")+q.fb;
+  });
+
+  // ---- Login simulado ----
   function openLogin(){
-    var ov=document.createElement("div"); ov.className="overlay"; ov.id="loginOverlay";
-    ov.innerHTML=''+
-      '<div class="modal" role="dialog" aria-label="Iniciar sesión con Google">'+
-        '<div class="mh">'+
-          '<svg class="glogo" viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>'+
-          '<h3>Elegí una cuenta</h3><p>para continuar en Plata Clara</p>'+
-        '</div>'+
-        '<div class="accounts">'+
-          '<button class="acc" id="accDemo"><span class="avatar">'+DEMO.initials+'</span><span><span class="nm">'+DEMO.name+'</span><br><span class="em">'+DEMO.email+'</span></span></button>'+
-          '<button class="acc other"><span class="avatar">+</span>Usar otra cuenta</button>'+
-        '</div>'+
-        '<div class="mf">🔒 Inicio de sesión <b>simulado</b> · maqueta de diseño. No se pide contraseña ni se conecta a Google.</div>'+
-      '</div>';
-    ov.addEventListener("click",function(e){ if(e.target===ov) ov.remove(); });
+    var ov=document.createElement("div"); ov.className="overlay";
+    ov.innerHTML='<div class="modal" role="dialog" aria-label="Iniciar sesión con Google"><div class="mh"><span class="glogo">'+gIcon(40)+'</span><h3>Elegí una cuenta</h3><p>para continuar en Plata Clara</p></div><div class="accounts"><button class="acc" id="accDemo"><span class="avatar">'+DEMO.initials+'</span><span><span class="nm">'+DEMO.name+'</span><br><span class="em">'+DEMO.email+'</span></span></button><button class="acc other"><span class="avatar">+</span>Usar otra cuenta</button></div><div class="mf">🔒 Inicio de sesión <b>simulado</b> · maqueta de diseño. No se pide contraseña ni se conecta a Google.</div></div>';
+    ov.addEventListener("click",function(ev){ if(ev.target===ov) ov.remove(); });
     document.body.appendChild(ov);
     document.getElementById("accDemo").addEventListener("click",function(){ ov.remove(); login(DEMO); });
   }
   function login(u){ state.user=u; renderAuth(); show("avances"); }
   function logout(){ state.user=null; renderAuth(); renderHeroCard(); show("inicio"); }
 
-  // ---- Header auth ----
   var authArea=document.getElementById("authArea");
   function renderAuth(){
     if(!state.user){
-      authArea.innerHTML='<button class="gbtn" data-login><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg><span class="glabel">Iniciar sesión</span></button>';
+      authArea.innerHTML='<button class="gbtn" data-login>'+gIcon(18)+'<span>Iniciar sesión</span></button>';
     }else{
       authArea.innerHTML='<button class="userchip" id="userChip"><span class="avatar">'+state.user.initials+'</span><span><span class="nm">'+state.user.name+'</span><br><span class="em">'+state.user.email+'</span></span></button>';
       document.getElementById("userChip").addEventListener("click",function(e){ e.stopPropagation(); toggleMenu(); });
@@ -523,24 +690,18 @@
   function toggleMenu(){
     var ex=document.getElementById("userMenu"); if(ex){ ex.remove(); return; }
     var m=document.createElement("div"); m.className="menu"; m.id="userMenu";
-    m.innerHTML='<div class="mu-head"><div class="nm">'+state.user.name+'</div><div class="em">'+state.user.email+'</div></div>'+
-      '<button data-act="avances">Mis avances</button><button data-act="logout">Cerrar sesión</button>';
+    m.innerHTML='<div class="mu-head"><div class="nm">'+state.user.name+'</div><div class="em">'+state.user.email+'</div></div><button data-act="avances">Mis avances</button><button data-act="logout">Cerrar sesión</button>';
     authArea.appendChild(m);
     m.addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; if(b.getAttribute("data-act")==="logout") logout(); else show("avances"); m.remove(); });
     setTimeout(function(){ document.addEventListener("click",function h(ev){ if(!ev.target.closest("#userMenu")&&!ev.target.closest("#userChip")){ var mm=document.getElementById("userMenu"); if(mm)mm.remove(); document.removeEventListener("click",h);} }); },0);
   }
 
-  // ---- Hero card (cambia según login) ----
   var heroCard=document.getElementById("heroCard");
   function renderHeroCard(){
     if(!state.user){
-      heroCard.innerHTML='<h3>Empezá en 10 segundos</h3>'+
-        '<p class="muted" style="font-size:13.5px;margin-top:6px">Entrá con Google y guardá tu progreso, puntajes y logros. Sin formularios.</p>'+
-        '<button class="gbtn" data-login style="margin-top:14px;width:100%;justify-content:center"><svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>Continuar con Google</button>'+
-        '<p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">O explorá sin cuenta desde "Empezar a aprender".</p>';
+      heroCard.innerHTML='<h3>Empezá en 10 segundos</h3><p class="muted" style="font-size:13.5px;margin-top:6px">Entrá con Google y guardá tu progreso, puntajes y logros. Sin formularios.</p><button class="gbtn" data-login style="margin-top:14px;width:100%;justify-content:center">'+gIcon(18)+'Continuar con Google</button><p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">O explorá sin cuenta desde "Empezar a aprender".</p>';
     }else{
-      heroCard.innerHTML='<div style="display:flex;gap:14px;align-items:center">'+ring(32)+'<div><h3 style="font-size:16px">¡Hola, '+state.user.name.split(" ")[0]+'!</h3><p class="muted" style="font-size:13px;margin-top:2px">Vas por buen camino.</p></div></div>'+
-        '<button class="btn primary" data-goto="avances" style="margin-top:16px;width:100%">Ver mis avances</button>';
+      heroCard.innerHTML='<div style="display:flex;gap:14px;align-items:center">'+ring(32)+'<div><h3 style="font-size:16px">¡Hola, '+state.user.name.split(" ")[0]+'!</h3><p class="muted" style="font-size:13px;margin-top:2px">Vas por buen camino.</p></div></div><button class="btn primary" data-goto="avances" style="margin-top:16px;width:100%">Ver mis avances</button>';
     }
   }
 
@@ -549,10 +710,8 @@
     return '<div class="ring"><svg width="112" height="112" viewBox="0 0 112 112"><circle cx="56" cy="56" r="46" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="56" cy="56" r="46" fill="none" stroke="url(#gr)" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/><defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10B981"/><stop offset="1" stop-color="#2563EB"/></linearGradient></defs></svg><div class="lbl">'+p+'%<small>COMPLETADO</small></div></div>';
   }
 
-  // ---- Mis avances (dashboard) ----
   function renderAvances(){
-    var locked=document.getElementById("avancesLocked");
-    var dash=document.getElementById("avancesDash");
+    var locked=document.getElementById("avancesLocked"), dash=document.getElementById("avancesDash");
     if(!state.user){ locked.hidden=false; dash.hidden=true; return; }
     locked.hidden=true; dash.hidden=false;
     var badges=[
@@ -561,61 +720,13 @@
       {t:"Racha de 5 días",s:"5 días seguidos",c:"#D97706",on:true,ic:'<path d="M12 3c1 4-2 5-2 8a4 4 0 0 0 8 0c0-2-1-3-1-5 2 1 3 3 3 6a7 7 0 0 1-14 0c0-4 4-6 6-9z"/>'},
       {t:"Inversor junior",s:"Completá 5 temas",c:"#7C3AED",on:false,ic:'<path d="M12 2l2.5 6.5L21 9l-5 4 1.5 7L12 16l-5.5 4L8 13 3 9l6.5-.5z"/>'}
     ];
-    dash.innerHTML=''+
-      '<div class="dashtop">'+ring(32)+
-        '<div class="who"><h2>¡Hola de nuevo, '+state.user.name.split(" ")[0]+'!</h2>'+
-          '<span class="sync"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/></svg> Sincronizado con tu Google · '+state.user.email+'</span>'+
-        '</div>'+
-      '</div>'+
-      '<div class="stats">'+
-        '<div class="stat" style="--tc:var(--accent)"><div class="n">7</div><div class="l">Lecciones completadas</div></div>'+
-        '<div class="stat" style="--tc:var(--blue)"><div class="n">3</div><div class="l">Temas empezados</div></div>'+
-        '<div class="stat" style="--tc:var(--amber)"><div class="n">5</div><div class="l">Días de racha 🔥</div></div>'+
-        '<div class="stat" style="--tc:var(--violet)"><div class="n">82%</div><div class="l">Promedio en quizzes</div></div>'+
-      '</div>'+
-      '<div class="continue">'+
-        '<div class="meta"><span class="eyebrow">Seguí donde dejaste</span><h3 style="font-size:18px;margin-top:4px">Acciones · ¿De dónde sale la ganancia?</h3><p class="muted" style="font-size:13px;margin-top:4px">Módulo 1 · lección 3 de 3</p></div>'+
-        '<button class="btn primary" data-goto="aprender">Continuar</button>'+
-      '</div>'+
-      '<h3 style="margin-top:26px;font-size:18px">Tus logros</h3>'+
-      '<div class="badges">'+ badges.map(function(b){
-        return '<div class="badge'+(b.on?'':' off')+'"><span class="b-ic" style="background:'+b.c+'"><svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+b.ic+'</svg></span><span><span class="b-t">'+b.t+'</span><br><span class="b-s">'+b.s+'</span></span></div>';
-      }).join("") +'</div>';
+    dash.innerHTML='<div class="dashtop">'+ring(32)+'<div class="who"><h2>¡Hola de nuevo, '+state.user.name.split(" ")[0]+'!</h2><span class="sync">'+svg('<path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/>')+' Sincronizado con tu Google · '+state.user.email+'</span></div></div>'+
+      '<div class="stats"><div class="stat" style="--tc:var(--accent)"><div class="n">7</div><div class="l">Lecciones completadas</div></div><div class="stat" style="--tc:var(--blue)"><div class="n">3</div><div class="l">Temas empezados</div></div><div class="stat" style="--tc:var(--amber)"><div class="n">5</div><div class="l">Días de racha 🔥</div></div><div class="stat" style="--tc:var(--violet)"><div class="n">82%</div><div class="l">Promedio en quizzes</div></div></div>'+
+      '<div class="continue"><div class="meta"><span class="eyebrow">Seguí donde dejaste</span><h3 style="font-size:18px;margin-top:4px">Acciones · ¿De dónde sale la ganancia?</h3><p class="muted" style="font-size:13px;margin-top:4px">Renta variable · módulo 1</p></div><button class="btn primary" data-lesson="acciones">Continuar</button></div>'+
+      '<h3 style="margin-top:26px;font-size:18px">Tus logros</h3><div class="badges">'+badges.map(function(b){ return '<div class="badge'+(b.on?'':' off')+'"><span class="b-ic" style="background:'+b.c+'">'+'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+b.ic+'</svg></span><span><span class="b-t">'+b.t+'</span><br><span class="b-s">'+b.s+'</span></span></div>'; }).join("")+'</div>';
   }
 
-  // ---- Temas ----
-  var temas=[
-    {t:"Acciones",d:"Ser dueño de una parte de una empresa.",c:"var(--accent)",ic:'<path d="M4 18 L10 11 L14 15 L20 7"/><path d="M15 7h5v5"/>'},
-    {t:"Criptomonedas",d:"Qué es Bitcoin y cómo funciona.",c:"var(--violet)",ic:'<circle cx="12" cy="12" r="8"/><path d="M9.5 8.5h4a2 2 0 0 1 0 4h-4m0 0h4.3a2 2 0 0 1 0 4H9.5m0-8V6.5m0 11V16m2.5-9.5V6m0 12v-.5"/>'},
-    {t:"El dólar",d:"Oficial, blue, MEP, CCL: qué es cada uno.",c:"var(--blue)",ic:'<path d="M12 2v20"/><path d="M16 6.5C16 4.6 14 4 12 4S8 4.6 8 7s2 3 4 3.5 4 1.3 4 3.5-2 3-4 3-4-.6-4-2.5"/>'},
-    {t:"Plazo fijo",d:"Guardar plata a cambio de interés.",c:"var(--amber)",ic:'<rect x="4" y="9" width="16" height="11" rx="2"/><path d="M8 9V7a4 4 0 0 1 8 0v2"/>'},
-    {t:"Fondos (FCI)",d:"Invertir junto a otros, de a poco.",c:"#4F46E5",ic:'<path d="M12 3v9l6 4"/><circle cx="12" cy="12" r="9"/>'},
-    {t:"Bonos",d:"Prestarle al Estado o a una empresa.",c:"#0891B2",ic:'<rect x="3" y="6" width="18" height="12" rx="2"/><path d="M3 10h18"/>'},
-    {t:"CEDEARs",d:"Acciones del exterior, en pesos.",c:"var(--pink)",ic:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>'},
-    {t:"Inflación e IPC",d:"Por qué la plata pierde valor.",c:"var(--neg)",ic:'<path d="M4 16 L10 10 L14 13 L20 5"/><path d="M15 5h5v5"/>'},
-    {t:"UVA",d:"La unidad que ajusta por inflación.",c:"#C026D3",ic:'<path d="M12 21s-7-4.5-7-10a7 7 0 0 1 14 0c0 5.5-7 10-7 10z"/><circle cx="12" cy="11" r="2.4"/>'},
-    {t:"PBI",d:"Qué mide y por qué importa.",c:"#65A30D",ic:'<path d="M4 20h16"/><rect x="6" y="12" width="3" height="6"/><rect x="11" y="8" width="3" height="10"/><rect x="16" y="4" width="3" height="14"/>'}
-  ];
-  document.getElementById("temasGrid").innerHTML=temas.map(function(x){
-    return '<button class="tema" data-goto="aprender" style="--tc:'+x.c+'"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+x.ic+'</svg></span><h3>'+x.t+'</h3><p>'+x.d+'</p><span class="lvl">Principiante</span></button>';
-  }).join("");
-
-  // ---- Niveles ----
-  var lc=document.getElementById("levelChips");
-  lc.addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; lc.querySelectorAll("button").forEach(function(x){x.classList.remove("on");}); b.classList.add("on"); });
-
-  // ---- Quiz ----
-  var opts=document.getElementById("opts"), feedback=document.getElementById("feedback"), answered=false;
-  opts.addEventListener("click",function(e){
-    var b=e.target.closest(".opt"); if(!b||answered)return; answered=true;
-    var correct=b.getAttribute("data-correct")==="true";
-    opts.querySelectorAll(".opt").forEach(function(o){ if(o.getAttribute("data-correct")==="true") o.classList.add("correct"); });
-    if(!correct) b.classList.add("wrong");
-    feedback.hidden=false;
-    feedback.innerHTML = correct
-      ? "<b>¡Correcto! ✓</b> Una acción es una parte de la propiedad de una empresa."
-      : "<b>Casi.</b> La respuesta es <b>B</b>: una acción es una parte de la propiedad de una empresa. El préstamo a una empresa es un <b>bono</b>.";
-  });
+  // ---- Niveles chips (ya no se usan en el índice) ----
 
   // ---- Glosario ----
   var terms=[
@@ -641,14 +752,16 @@
     var items=terms.filter(function(x){ return !q||x.t.toLowerCase().indexOf(q)>=0||x.d.toLowerCase().indexOf(q)>=0; });
     noresult.hidden=items.length>0;
     glist.innerHTML=items.map(function(x){
-      var rel=x.r&&x.r.length?'<div class="rel">Relacionados: '+x.r.map(function(r){return '<a href="#">'+r+'</a>';}).join(", ")+'</div>':'';
+      var rel=x.r&&x.r.length?'<div class="rel">Relacionados: '+x.r.map(function(r){return '<a href="#" data-term="'+r+'">'+r+'</a>';}).join(", ")+'</div>':'';
       return '<div class="gterm" style="--tc:'+x.tc+'"><h3>'+x.t+' <span class="cat">'+x.c+'</span></h3><p>'+x.d+'</p>'+rel+'</div>';
     }).join("");
   }
+  window.renderGloss=renderGloss;
   renderGloss("");
   document.getElementById("glsearch").addEventListener("input",function(e){ renderGloss(e.target.value); });
 
   // init
   renderAuth();
+  renderAprender(null);
 })();
 </script>
