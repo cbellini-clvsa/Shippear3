@@ -48,8 +48,9 @@ carteras a medida.
 - **Login con Google (OAuth 2.0) y seguimiento de progreso:** lecciones completadas, puntajes, racha
   y logros quedan asociados a la cuenta de Google del usuario y se sincronizan entre dispositivos.
   Quien explora sin iniciar sesión puede usar la app igual (progreso local de respaldo).
-- **Datos de mercado en vivo (complemento del aprendizaje):** dólar (oficial/MEP/blue) + macro
-  (IPC, UVA, inflación), con caché.
+- **Datos de mercado en vivo, agrupados:** **Dólar** (oficial/MEP/blue/CCL), **Acciones** (BYMA),
+  **Bonos**, **Indicadores del Estado** (IPC, inflación interanual, UVA, riesgo país, actividad EMAE)
+  y **Crypto**. Al tocar un instrumento se ve su **evolución mensual del último año**.
 - **Panel de administración** para cargar/editar todo el contenido sin tocar código (Django admin).
 - **Contenido semilla inicial** cargado.
 - **Listo para desplegar gratis** en la nube.
@@ -150,15 +151,28 @@ contenido.
 
 ---
 
-## 7. Datos de mercado en vivo (complemento)
+## 7. Datos de mercado en vivo (APIs públicas y gratuitas)
 
-- **Fuentes (Fase 1):** APIs públicas y gratuitas argentinas para **dólar** (oficial/MEP/blue) y
-  **macro** (IPC, UVA, inflación). Candidatas: *dolarapi*, *ArgentinaDatos*, *BCRA Estadísticas*
-  (se valida al implementar que estén vivas y sin clave).
-- **Caché:** los valores se guardan unos minutos; toda la app lee de la caché, no pega a la API en
-  cada visita.
-- **Fallo de la API:** se muestra el **último valor conocido con su fecha**; si no hay previo, un
-  aviso de "dato no disponible ahora". Nunca un error crudo.
+Los datos se muestran **agrupados**: **Dólar**, **Acciones**, **Bonos**, **Indicadores del Estado**
+y **Crypto**. Al tocar un instrumento se ve su **evolución mensual del último año** (gráfico de líneas
+con un punto por mes). Fuentes confirmadas y en uso (todas sin clave):
+
+| Grupo | Dato | Fuente (API) |
+|---|---|---|
+| Dólar | oficial / blue / MEP / CCL (actual + histórico) | `dolarapi.com` + `api.argentinadatos.com` |
+| Indicadores del Estado | IPC, inflación interanual, UVA, riesgo país | `api.argentinadatos.com` (datos INDEC/BCRA) |
+| Indicadores del Estado | Actividad económica (EMAE, proxy mensual del PBI) | `apis.datos.gob.ar` (INDEC — **API oficial del Estado**) |
+| Acciones | GGAL, YPFD, PAMP, ALUA, BMA, TXAR (BYMA) + histórico mensual | Yahoo Finance (gratuito) |
+| Bonos | AL30/GD30/AL35/GD35/AE38/GD41 (precio del día) | `data912.com` (BYMA) |
+| Crypto | BTC, ETH, SOL (actual + histórico) | `api.coingecko.com` |
+
+- **Histórico mensual:** 12 puntos (un valor por mes del último año). Para **bonos**, la fuente
+  gratuita solo da el precio del día; la serie histórica mensual de bonos se integra en la app real
+  (se avisa en la ficha).
+- **Caché + resiliencia:** la app lee de una caché (unos minutos) y, si una fuente falla, muestra el
+  **último valor conocido con su fecha**, nunca un error crudo.
+- **En la maqueta** los valores van **embebidos** (reales, a la fecha de generación); en la app
+  Django se **actualizan solos** desde estas mismas APIs.
 
 ---
 
@@ -251,7 +265,7 @@ A partir de ahí se suma todo el contenido que se quiera desde el **admin**, sin
   construcción, monotributo, etc.) con derechos/obligaciones según normativa vigente y fuentes.
 - **"Salir de deudas" (escáner):** subida de captura/foto → OCR/IA → resumen de deudas → orientación
   para salir, con privacidad máxima (no guardar nada sensible).
-- **Más mercado:** acciones/Merval/CEDEARs y crypto en vivo.
+- **Más mercado:** CEDEARs, letras (Lecaps) y la **serie histórica mensual de bonos** (fuente a definir).
 - **Más proveedores de login** (email, etc.) si hiciera falta.
 
 ---

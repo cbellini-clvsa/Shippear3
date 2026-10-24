@@ -266,6 +266,31 @@
     .userchip .nm,.userchip .em{display:none}
   }
 </style>
+<style>
+  /* Mercado: grupos de instrumentos + detalle con gráfico histórico */
+  .mkt-group{margin-top:28px}
+  .mkt-group .gh{display:flex;align-items:center;gap:10px;margin-bottom:12px}
+  .mkt-group .gh .dot{width:13px;height:13px;border-radius:50%;background:var(--tc);flex:none}
+  .mkt-group .gh h3{font-size:19px}
+  .mkt-group .gh span{font-size:12px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:2px 9px}
+  .mkt-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px}
+  .mkt-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;cursor:pointer;text-align:left;border-top:3px solid var(--tc);transition:transform .12s ease,box-shadow .12s ease;width:100%}
+  .mkt-card:hover{transform:translateY(-2px);box-shadow:0 14px 26px -20px var(--tc)}
+  .mkt-card .nm{font-size:13px;font-weight:600;color:var(--muted)}
+  .mkt-card .vl{font-family:var(--font-display);font-weight:700;font-size:23px;margin-top:6px;font-variant-numeric:tabular-nums}
+  .mkt-card .row{display:flex;align-items:center;gap:8px;margin-top:7px;min-height:20px}
+  .chgbadge{font-size:11.5px;font-weight:800;padding:2px 7px;border-radius:7px;font-variant-numeric:tabular-nums}
+  .chgbadge.pos{background:color-mix(in srgb,var(--pos) 16%,transparent);color:var(--pos)}
+  .chgbadge.neg{background:color-mix(in srgb,var(--neg) 16%,transparent);color:var(--neg)}
+  .mkt-card .tk{font-size:11px;color:var(--muted);font-weight:700;letter-spacing:.03em}
+  .asof{font-size:12px;color:var(--muted);background:var(--surface-2);border:1px solid var(--border);border-radius:999px;padding:5px 12px;white-space:nowrap}
+  .chartwrap{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:18px}
+  .chartwrap svg{width:100%;height:auto;display:block;overflow:visible}
+  .chart-x,.chart-y{fill:var(--muted);font-size:10px;font-family:var(--font-body)}
+  .detail-head{display:flex;flex-wrap:wrap;gap:12px;align-items:flex-end;justify-content:space-between}
+  .detail-val{font-family:var(--font-display);font-weight:800;font-size:clamp(28px,5vw,38px);font-variant-numeric:tabular-nums}
+  .notebox{background:var(--surface-2);border-left:3px solid var(--amber);border-radius:8px;padding:13px 15px;font-size:13.5px;color:var(--muted)}
+</style>
 
 <header class="topbar">
   <div class="wrap">
@@ -325,13 +350,7 @@
         <div><span class="eyebrow">Mercado hoy</span><h2>Los números del día</h2></div>
         <button class="btn ghost sm" data-goto="mercado">Ver todo</button>
       </div>
-      <div class="strip">
-        <div class="tile" style="--tc:var(--blue)"><div class="k">Dólar oficial</div><div class="v">$1.035</div><div class="d pos">▲ 0,3%</div></div>
-        <div class="tile" style="--tc:var(--violet)"><div class="k">Dólar blue</div><div class="v">$1.200</div><div class="d neg">▼ 0,8%</div></div>
-        <div class="tile" style="--tc:var(--accent)"><div class="k">Dólar MEP</div><div class="v">$1.145</div><div class="d pos">▲ 0,2%</div></div>
-        <div class="tile" style="--tc:var(--neg)"><div class="k">IPC mensual</div><div class="v">2,4%</div><div class="d muted">INDEC</div></div>
-        <div class="tile" style="--tc:var(--pink)"><div class="k">UVA</div><div class="v">$1.350</div><div class="d pos">▲ 0,1%</div></div>
-      </div>
+      <div class="strip" id="homeStrip"></div>
     </div>
 
     <div style="margin-top:46px;">
@@ -350,20 +369,7 @@
 
 <!-- ===================== MERCADO ===================== -->
 <section class="view" id="mercado" hidden>
-  <div class="wrap">
-    <span class="eyebrow">Datos de referencia</span>
-    <h2 style="font-size:clamp(24px,3.5vw,32px);margin-top:6px;">Mercado hoy</h2>
-    <p class="muted" style="max-width:62ch;margin-top:8px;">Cotizaciones e indicadores para mirar mientras aprendés. <b>En la maqueta son valores de ejemplo</b>; en la app real se actualizan solos desde fuentes públicas.</p>
-    <div class="market-grid" style="margin-top:22px;">
-      <div class="mcard" style="--tc:var(--blue)"><div class="top"><h3>Dólar oficial</h3><span class="badge-var pos">▲ 0,3%</span></div><div class="big">$1.035</div><div class="cv"><div>Compra<b>$985</b></div><div>Venta<b>$1.035</b></div></div><div class="src">Fuente: ejemplo · hoy 11:30</div></div>
-      <div class="mcard" style="--tc:var(--violet)"><div class="top"><h3>Dólar blue</h3><span class="badge-var neg">▼ 0,8%</span></div><div class="big">$1.200</div><div class="cv"><div>Compra<b>$1.180</b></div><div>Venta<b>$1.200</b></div></div><div class="src">Fuente: ejemplo · hoy 11:30</div></div>
-      <div class="mcard" style="--tc:var(--accent)"><div class="top"><h3>Dólar MEP</h3><span class="badge-var pos">▲ 0,2%</span></div><div class="big">$1.145</div><div class="cv"><div>Operá legal con bonos</div></div><div class="src">Fuente: ejemplo · hoy 11:30</div></div>
-      <div class="mcard" style="--tc:var(--neg)"><div class="top"><h3>Inflación (IPC)</h3><span class="badge-var flat">INDEC</span></div><div class="big">2,4%</div><div class="cv"><div>Mensual<b>2,4%</b></div><div>Interanual<b>117%</b></div></div><div class="src">Fuente: ejemplo · último dato</div></div>
-      <div class="mcard" style="--tc:var(--pink)"><div class="top"><h3>UVA</h3><span class="badge-var pos">▲ 0,1%</span></div><div class="big">$1.350,27</div><div class="cv"><div>Unidad de Valor Adquisitivo</div></div><div class="src">Fuente: ejemplo · hoy</div></div>
-      <div class="mcard" style="--tc:var(--amber)"><div class="top"><h3>Plazo fijo (TNA)</h3><span class="badge-var flat">ref.</span></div><div class="big">35%</div><div class="cv"><div>Tasa nominal anual de referencia</div></div><div class="src">Fuente: ejemplo</div></div>
-    </div>
-    <div class="callout" style="margin-top:20px;max-width:70ch;background:var(--surface-2);border-left:3px solid var(--accent);border-radius:8px;padding:12px 14px;font-size:13.5px;color:var(--muted);">¿No entendés alguno de estos términos? Están explicados en el <a href="#" data-goto="glosario">glosario</a> en palabras simples.</div>
-  </div>
+  <div class="wrap"><div id="mercadoContent"></div></div>
 </section>
 
 <!-- ===================== GLOSARIO ===================== -->
@@ -643,14 +649,14 @@
     if(id==="avances") renderAvances();
     window.scrollTo({top:0,behavior:"smooth"});
   }
-  tabs.addEventListener("click",function(e){ var b=e.target.closest("button[data-target]"); if(!b)return; var t=b.getAttribute("data-target"); if(t==="aprender") renderAprender(null); show(t); });
+  tabs.addEventListener("click",function(e){ var b=e.target.closest("button[data-target]"); if(!b)return; var t=b.getAttribute("data-target"); if(t==="aprender") renderAprender(null); if(t==="mercado") renderMercado(null); show(t); });
 
   document.addEventListener("click",function(e){
     if(e.target.closest("[data-login]")){ openLogin(); return; }
     var lz=e.target.closest("[data-lesson]"); if(lz){ e.preventDefault(); renderAprender(lz.getAttribute("data-lesson")); show("aprender"); return; }
     if(e.target.closest("[data-aprender]")){ e.preventDefault(); renderAprender(null); show("aprender"); return; }
     var term=e.target.closest("[data-term]"); if(term){ e.preventDefault(); show("glosario"); var inp=document.getElementById("glsearch"); if(inp){ inp.value=term.getAttribute("data-term"); renderGloss(inp.value);} return; }
-    var g=e.target.closest("[data-goto]"); if(g){ e.preventDefault(); var t=g.getAttribute("data-goto"); if(t==="aprender") renderAprender(null); show(t); return; }
+    var g=e.target.closest("[data-goto]"); if(g){ e.preventDefault(); var t=g.getAttribute("data-goto"); if(t==="aprender") renderAprender(null); if(t==="mercado") renderMercado(null); show(t); return; }
   });
 
   // Quiz (delegado)
@@ -760,8 +766,127 @@
   renderGloss("");
   document.getElementById("glsearch").addEventListener("input",function(e){ renderGloss(e.target.value); });
 
+  // ===== MERCADO (datos reales embebidos) =====
+  var MERCADO = {"generado": "2026-10-24 12:56", "grupos": {"Dolar": [{"key": "dolar_oficial", "name": "Dolar oficial", "val": 1550, "unit": "ARS", "compra": 1500, "venta": 1550, "hist": [{"m": "2025-11", "v": 1475.0}, {"m": "2025-12", "v": 1480.0}, {"m": "2026-01", "v": 1465.0}, {"m": "2026-02", "v": 1420.0}, {"m": "2026-03", "v": 1405.0}, {"m": "2026-04", "v": 1415.0}, {"m": "2026-05", "v": 1430.0}, {"m": "2026-06", "v": 1500.0}, {"m": "2026-07", "v": 1510.0}, {"m": "2026-08", "v": 1530.0}, {"m": "2026-09", "v": 1545.0}, {"m": "2026-10", "v": 1550.0}], "src": "dolarapi.com / ArgentinaDatos"}, {"key": "dolar_blue", "name": "Dolar blue", "val": 1565, "unit": "ARS", "compra": 1545, "venta": 1565, "hist": [{"m": "2025-11", "v": 1435.0}, {"m": "2025-12", "v": 1530.0}, {"m": "2026-01", "v": 1470.0}, {"m": "2026-02", "v": 1425.0}, {"m": "2026-03", "v": 1410.0}, {"m": "2026-04", "v": 1400.0}, {"m": "2026-05", "v": 1430.0}, {"m": "2026-06", "v": 1515.0}, {"m": "2026-07", "v": 1560.0}, {"m": "2026-08", "v": 1555.0}, {"m": "2026-09", "v": 1560.0}, {"m": "2026-10", "v": 1565.0}], "src": "dolarapi.com / ArgentinaDatos"}, {"key": "dolar_bolsa", "name": "Dolar MEP", "val": 1563.9, "unit": "ARS", "compra": 1557.4, "venta": 1563.9, "hist": [{"m": "2025-11", "v": 1482.9}, {"m": "2025-12", "v": 1501.5}, {"m": "2026-01", "v": 1464.6}, {"m": "2026-02", "v": 1427.4}, {"m": "2026-03", "v": 1430.8}, {"m": "2026-04", "v": 1448.5}, {"m": "2026-05", "v": 1434.8}, {"m": "2026-06", "v": 1519.0}, {"m": "2026-07", "v": 1522.1}, {"m": "2026-08", "v": 1538.8}, {"m": "2026-09", "v": 1557.0}, {"m": "2026-10", "v": 1563.9}], "src": "dolarapi.com / ArgentinaDatos"}, {"key": "dolar_contadoconliqui", "name": "Dolar CCL", "val": 1654, "unit": "ARS", "compra": 1649.2, "venta": 1654, "hist": [{"m": "2025-11", "v": 1516.1}, {"m": "2025-12", "v": 1523.3}, {"m": "2026-01", "v": 1499.4}, {"m": "2026-02", "v": 1462.7}, {"m": "2026-03", "v": 1474.9}, {"m": "2026-04", "v": 1494.1}, {"m": "2026-05", "v": 1483.9}, {"m": "2026-06", "v": 1563.5}, {"m": "2026-07", "v": 1575.7}, {"m": "2026-08", "v": 1598.3}, {"m": "2026-09", "v": 1617.4}, {"m": "2026-10", "v": 1654.0}], "src": "dolarapi.com / ArgentinaDatos"}], "Indicadores del Estado": [{"key": "ipc", "name": "Inflacion mensual (IPC)", "val": 1.9, "unit": "%", "hist": [{"m": "2025-10", "v": 2.3}, {"m": "2025-11", "v": 2.5}, {"m": "2025-12", "v": 2.8}, {"m": "2026-01", "v": 2.9}, {"m": "2026-02", "v": 2.9}, {"m": "2026-03", "v": 3.4}, {"m": "2026-04", "v": 2.6}, {"m": "2026-05", "v": 2.1}, {"m": "2026-06", "v": 1.9}, {"m": "2026-07", "v": 2.1}, {"m": "2026-08", "v": 1.7}, {"m": "2026-09", "v": 1.9}], "src": "ArgentinaDatos / INDEC"}, {"key": "ipc_ia", "name": "Inflacion interanual", "val": 33.4, "unit": "%", "hist": [{"m": "2025-10", "v": 31.3}, {"m": "2025-11", "v": 31.4}, {"m": "2025-12", "v": 31.5}, {"m": "2026-01", "v": 32.4}, {"m": "2026-02", "v": 33.1}, {"m": "2026-03", "v": 32.6}, {"m": "2026-04", "v": 32.4}, {"m": "2026-05", "v": 33.2}, {"m": "2026-06", "v": 33.5}, {"m": "2026-07", "v": 33.8}, {"m": "2026-08", "v": 33.5}, {"m": "2026-09", "v": 33.4}], "src": "ArgentinaDatos / INDEC"}, {"key": "uva", "name": "UVA", "val": 2168.29, "unit": "ARS", "hist": [{"m": "2025-11", "v": 1665.91}, {"m": "2025-12", "v": 1707.79}, {"m": "2026-01", "v": 1752.97}, {"m": "2026-02", "v": 1800.05}, {"m": "2026-03", "v": 1855.18}, {"m": "2026-04", "v": 1912.36}, {"m": "2026-05", "v": 1969.47}, {"m": "2026-06", "v": 2016.85}, {"m": "2026-07", "v": 2057.99}, {"m": "2026-08", "v": 2096.27}, {"m": "2026-09", "v": 2138.48}, {"m": "2026-10", "v": 2168.29}], "src": "ArgentinaDatos / BCRA"}, {"key": "riesgo", "name": "Riesgo pais", "val": 707.0, "unit": "pb", "hist": [{"m": "2025-11", "v": 648.0}, {"m": "2025-12", "v": 571.0}, {"m": "2026-01", "v": 496.0}, {"m": "2026-02", "v": 572.0}, {"m": "2026-03", "v": 617.0}, {"m": "2026-04", "v": 567.0}, {"m": "2026-05", "v": 493.0}, {"m": "2026-06", "v": 426.0}, {"m": "2026-07", "v": 430.0}, {"m": "2026-08", "v": 512.0}, {"m": "2026-09", "v": 607.0}, {"m": "2026-10", "v": 707.0}], "src": "ArgentinaDatos"}, {"key": "emae", "name": "Actividad economica (EMAE, proxy del PBI)", "val": 151.6, "unit": "idx", "hist": [{"m": "2025-08", "v": 150.4}, {"m": "2025-09", "v": 151.7}, {"m": "2025-10", "v": 152.8}, {"m": "2025-11", "v": 148.0}, {"m": "2025-12", "v": 153.9}, {"m": "2026-01", "v": 149.5}, {"m": "2026-02", "v": 139.3}, {"m": "2026-03", "v": 160.2}, {"m": "2026-04", "v": 162.3}, {"m": "2026-05", "v": 166.3}, {"m": "2026-06", "v": 161.7}, {"m": "2026-07", "v": 151.6}], "src": "datos.gob.ar (INDEC)"}], "Acciones": [{"key": "GGAL.BA", "name": "Grupo Galicia", "ticker": "GGAL", "val": 6235.0, "unit": "ARS", "hist": [{"m": "2025-11", "v": 7920.0}, {"m": "2025-12", "v": 8200.0}, {"m": "2026-01", "v": 8310.0}, {"m": "2026-02", "v": 6545.0}, {"m": "2026-03", "v": 6890.0}, {"m": "2026-04", "v": 6220.0}, {"m": "2026-05", "v": 7495.0}, {"m": "2026-06", "v": 7790.0}, {"m": "2026-07", "v": 7890.0}, {"m": "2026-08", "v": 7015.0}, {"m": "2026-09", "v": 6050.0}, {"m": "2026-10", "v": 6235.0}], "src": "Yahoo Finance (BYMA)"}, {"key": "YPFD.BA", "name": "YPF", "ticker": "YPFD", "val": 8350.0, "unit": "ARS", "hist": [{"m": "2025-11", "v": 5610.0}, {"m": "2025-12", "v": 5460.0}, {"m": "2026-01", "v": 5970.0}, {"m": "2026-02", "v": 5077.5}, {"m": "2026-03", "v": 6750.0}, {"m": "2026-04", "v": 6765.0}, {"m": "2026-05", "v": 7835.0}, {"m": "2026-06", "v": 7112.5}, {"m": "2026-07", "v": 8290.0}, {"m": "2026-08", "v": 8255.0}, {"m": "2026-09", "v": 8095.0}, {"m": "2026-10", "v": 8350.0}], "src": "Yahoo Finance (BYMA)"}, {"key": "PAMP.BA", "name": "Pampa Energia", "ticker": "PAMP", "val": 5240.0, "unit": "ARS", "hist": [{"m": "2025-11", "v": 5405.0}, {"m": "2025-12", "v": 5260.0}, {"m": "2026-01", "v": 5215.0}, {"m": "2026-02", "v": 4495.0}, {"m": "2026-03", "v": 5200.0}, {"m": "2026-04", "v": 4972.5}, {"m": "2026-05", "v": 5080.0}, {"m": "2026-06", "v": 5120.0}, {"m": "2026-07", "v": 5555.0}, {"m": "2026-08", "v": 5240.0}, {"m": "2026-09", "v": 5030.0}, {"m": "2026-10", "v": 5240.0}], "src": "Yahoo Finance (BYMA)"}, {"key": "ALUA.BA", "name": "Aluar", "ticker": "ALUA", "val": 886.0, "unit": "ARS", "hist": [{"m": "2025-11", "v": 1050.0}, {"m": "2025-12", "v": 993.5}, {"m": "2026-01", "v": 1045.0}, {"m": "2026-02", "v": 811.5}, {"m": "2026-03", "v": 937.0}, {"m": "2026-04", "v": 970.0}, {"m": "2026-05", "v": 1019.0}, {"m": "2026-06", "v": 981.0}, {"m": "2026-07", "v": 977.5}, {"m": "2026-08", "v": 840.0}, {"m": "2026-09", "v": 825.0}, {"m": "2026-10", "v": 886.0}], "src": "Yahoo Finance (BYMA)"}, {"key": "BMA.BA", "name": "Banco Macro", "ticker": "BMA", "val": 10880.0, "unit": "ARS", "hist": [{"m": "2025-11", "v": 12980.0}, {"m": "2025-12", "v": 13570.0}, {"m": "2026-01", "v": 15290.0}, {"m": "2026-02", "v": 11210.0}, {"m": "2026-03", "v": 11410.0}, {"m": "2026-04", "v": 10890.0}, {"m": "2026-05", "v": 13490.0}, {"m": "2026-06", "v": 14410.0}, {"m": "2026-07", "v": 14470.0}, {"m": "2026-08", "v": 12610.0}, {"m": "2026-09", "v": 10830.0}, {"m": "2026-10", "v": 10880.0}], "src": "Yahoo Finance (BYMA)"}, {"key": "TXAR.BA", "name": "Ternium Argentina", "ticker": "TXAR", "val": 774.0, "unit": "ARS", "hist": [{"m": "2025-11", "v": 805.0}, {"m": "2025-12", "v": 672.0}, {"m": "2026-01", "v": 705.0}, {"m": "2026-02", "v": 619.5}, {"m": "2026-03", "v": 674.5}, {"m": "2026-04", "v": 673.5}, {"m": "2026-05", "v": 692.5}, {"m": "2026-06", "v": 662.5}, {"m": "2026-07", "v": 659.5}, {"m": "2026-08", "v": 674.0}, {"m": "2026-09", "v": 669.5}, {"m": "2026-10", "v": 774.0}], "src": "Yahoo Finance (BYMA)"}], "Bonos": [{"key": "AL30", "name": "AL30 - Bonar 2030", "ticker": "AL30", "val": 86050.0, "unit": "ARS", "pct": 0.54, "hist": [], "nota": "La fuente gratuita (data912) da solo el precio del dia; la serie historica mensual de bonos se integra en la app real.", "src": "data912.com (BYMA)"}, {"key": "GD30", "name": "GD30 - Global 2030", "ticker": "GD30", "val": 88300.0, "unit": "ARS", "pct": 0.49, "hist": [], "nota": "La fuente gratuita (data912) da solo el precio del dia; la serie historica mensual de bonos se integra en la app real.", "src": "data912.com (BYMA)"}, {"key": "AL35", "name": "AL35 - Bonar 2035", "ticker": "AL35", "val": 109150.0, "unit": "ARS", "pct": 0.73, "hist": [], "nota": "La fuente gratuita (data912) da solo el precio del dia; la serie historica mensual de bonos se integra en la app real.", "src": "data912.com (BYMA)"}, {"key": "GD35", "name": "GD35 - Global 2035", "ticker": "GD35", "val": 114980.0, "unit": "ARS", "pct": 0.46, "hist": [], "nota": "La fuente gratuita (data912) da solo el precio del dia; la serie historica mensual de bonos se integra en la app real.", "src": "data912.com (BYMA)"}, {"key": "AE38", "name": "AE38 - Bonar 2038", "ticker": "AE38", "val": 113390.0, "unit": "ARS", "pct": 0.55, "hist": [], "nota": "La fuente gratuita (data912) da solo el precio del dia; la serie historica mensual de bonos se integra en la app real.", "src": "data912.com (BYMA)"}, {"key": "GD41", "name": "GD41 - Global 2041", "ticker": "GD41", "val": 107020.0, "unit": "ARS", "pct": 0.3, "hist": [], "nota": "La fuente gratuita (data912) da solo el precio del dia; la serie historica mensual de bonos se integra en la app real.", "src": "data912.com (BYMA)"}], "Crypto": [{"key": "bitcoin", "name": "Bitcoin", "ticker": "BTC", "val": 79547, "unit": "USD", "hist": [{"m": "2025-11", "v": 90832.19}, {"m": "2025-12", "v": 88363.72}, {"m": "2026-01", "v": 84091.63}, {"m": "2026-02", "v": 65891.22}, {"m": "2026-03", "v": 66691.27}, {"m": "2026-04", "v": 75784.96}, {"m": "2026-05", "v": 73820.3}, {"m": "2026-06", "v": 60152.36}, {"m": "2026-07", "v": 64743.34}, {"m": "2026-08", "v": 77658.23}, {"m": "2026-09", "v": 83640.1}, {"m": "2026-10", "v": 79554.09}], "src": "CoinGecko"}, {"key": "ethereum", "name": "Ethereum", "ticker": "ETH", "val": 2297.64, "unit": "USD", "hist": [{"m": "2025-11", "v": 2989.65}, {"m": "2025-12", "v": 2967.98}, {"m": "2026-01", "v": 2702.92}, {"m": "2026-02", "v": 1931.12}, {"m": "2026-03", "v": 2024.01}, {"m": "2026-04", "v": 2253.62}, {"m": "2026-05", "v": 2021.67}, {"m": "2026-06", "v": 1609.75}, {"m": "2026-07", "v": 1917.57}, {"m": "2026-08", "v": 2416.24}, {"m": "2026-09", "v": 2677.38}, {"m": "2026-10", "v": 2297.55}], "src": "CoinGecko"}, {"key": "solana", "name": "Solana", "ticker": "SOL", "val": 99.41, "unit": "USD", "hist": [{"m": "2025-11", "v": 136.02}, {"m": "2025-12", "v": 124.83}, {"m": "2026-01", "v": 117.48}, {"m": "2026-02", "v": 82.04}, {"m": "2026-03", "v": 82.45}, {"m": "2026-04", "v": 83.04}, {"m": "2026-05", "v": 82.69}, {"m": "2026-06", "v": 75.01}, {"m": "2026-07", "v": 74.46}, {"m": "2026-08", "v": 101.68}, {"m": "2026-09", "v": 119.09}, {"m": "2026-10", "v": 99.41}], "src": "CoinGecko"}]}};
+  var GROUPMETA={
+    "Dolar":{label:"Dólar", c:"var(--blue)"},
+    "Acciones":{label:"Acciones", c:"var(--accent)"},
+    "Bonos":{label:"Bonos", c:"#0891B2"},
+    "Indicadores del Estado":{label:"Indicadores del Estado", c:"var(--amber)"},
+    "Crypto":{label:"Crypto", c:"var(--violet)"}
+  };
+  var GROUP_ORDER=["Dolar","Acciones","Bonos","Indicadores del Estado","Crypto"];
+  var BYKEY={};
+  (function(){ var gs=(MERCADO&&MERCADO.grupos)||{}; Object.keys(gs).forEach(function(gn){ (gs[gn]||[]).forEach(function(it){ it._group=gn; BYKEY[it.key]=it; }); }); })();
+
+  function acc(s){ return (s||"").replace(/Dolar/g,"Dólar").replace(/Inflacion/g,"Inflación").replace(/pais/g,"país").replace(/economica/g,"económica"); }
+  function nAR(v,dec){ try{ return new Intl.NumberFormat("es-AR",{minimumFractionDigits:dec,maximumFractionDigits:dec}).format(v); }catch(e){ return ""+v; } }
+  function fmtVal(it){
+    var v=it.val; if(v==null||isNaN(v)) return "s/d";
+    if(it.unit==="%") return nAR(v,1)+"%";
+    if(it.unit==="USD") return "US$ "+nAR(v, v<100?2:0);
+    if(it.unit==="pb") return nAR(v,0)+" pb";
+    if(it.unit==="idx") return nAR(v,1);
+    return "$ "+nAR(v, v<100?2:0);
+  }
+  function fmtNum(v,unit){
+    if(unit==="%") return nAR(v,1)+"%";
+    if(unit==="USD") return "US$"+nAR(v, v<100?1:0);
+    if(unit==="pb") return nAR(v,0);
+    if(unit==="idx") return nAR(v,1);
+    return "$"+nAR(v, v<100?1:0);
+  }
+  function changeOf(it){
+    var h=it.hist||[];
+    if(h.length>=2){ var a=h[h.length-2].v, b=h[h.length-1].v; if(a) return {pct:(b-a)/Math.abs(a)*100, per:"último mes"}; }
+    if(it.pct!=null) return {pct:it.pct, per:"hoy"};
+    return null;
+  }
+  var MESES=["ene","feb","mar","abr","may","jun","jul","ago","sep","oct","nov","dic"];
+  function mesLabel(ym){ var p=(""+ym).split("-"); var i=parseInt(p[1],10)-1; return (MESES[i]||"")+(p[1]==="01"?" "+p[0].slice(2):""); }
+  function cssColor(c){ if((""+c).indexOf("var(")!==0) return c; var name=c.slice(4,-1).trim(); try{ var v=getComputedStyle(document.documentElement).getPropertyValue(name).trim(); return v||"#0E9F77"; }catch(e){ return "#0E9F77"; } }
+
+  function chartSVG(hist, color, unit){
+    var W=640,H=250,pl=58,pr=14,pt=14,pb=40;
+    var vals=hist.map(function(p){return p.v;});
+    var min=Math.min.apply(null,vals), max=Math.max.apply(null,vals);
+    if(min===max){ min=min*0.98||0; max=max*1.02||1; }
+    var rng=(max-min)||1; min-=rng*0.12; max+=rng*0.12;
+    var n=hist.length;
+    function X(i){ return pl+(W-pl-pr)*(n<=1?0.5:i/(n-1)); }
+    function Y(v){ return pt+(H-pt-pb)*(1-(v-min)/(max-min)); }
+    var grid="", yl="";
+    for(var g=0; g<=3; g++){ var gv=min+(max-min)*g/3; var gy=Y(gv); grid+='<line x1="'+pl+'" y1="'+gy.toFixed(1)+'" x2="'+(W-pr)+'" y2="'+gy.toFixed(1)+'" stroke="var(--border)" stroke-width="1"/>'; yl+='<text class="chart-y" x="'+(pl-8)+'" y="'+(gy+3).toFixed(1)+'" text-anchor="end">'+fmtNum(gv,unit)+'</text>'; }
+    var line=hist.map(function(p,i){ return (i?"L":"M")+X(i).toFixed(1)+" "+Y(p.v).toFixed(1); }).join(" ");
+    var area=line+" L"+X(n-1).toFixed(1)+" "+Y(min).toFixed(1)+" L"+X(0).toFixed(1)+" "+Y(min).toFixed(1)+" Z";
+    var dots="", xl="";
+    hist.forEach(function(p,i){ var cx=X(i),cy=Y(p.v); var last=i===n-1; dots+='<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="'+(last?4:2.6)+'" fill="'+(last?color:"var(--surface)")+'" stroke="'+color+'" stroke-width="2"/>'; xl+='<text class="chart-x" x="'+cx.toFixed(1)+'" y="'+(H-pb+18)+'" text-anchor="middle">'+mesLabel(p.m)+'</text>'; });
+    var lastv='<text x="'+X(n-1).toFixed(1)+'" y="'+(Y(hist[n-1].v)-10).toFixed(1)+'" text-anchor="end" font-weight="700" font-size="12" fill="'+color+'">'+fmtNum(hist[n-1].v,unit)+'</text>';
+    return '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Evolución mensual">'+grid+'<path d="'+area+'" fill="'+color+'" fill-opacity="0.10"/><path d="'+line+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+dots+yl+xl+lastv+'</svg>';
+  }
+
+  function mercadoIndexHTML(){
+    var html='<div class="detail-head"><div><span class="eyebrow">Datos reales de mercado</span><h2 style="font-size:clamp(24px,3.5vw,32px);margin-top:4px">Mercado hoy</h2></div><span class="asof">● Datos reales al '+(MERCADO.generado||"")+'</span></div>'+
+      '<p class="muted" style="max-width:72ch;margin:8px 0 2px">Tocá cualquier instrumento para ver su <b>evolución mensual del último año</b>. En la app real estos datos se actualizan solos desde las mismas fuentes públicas.</p>';
+    GROUP_ORDER.forEach(function(gn){
+      var items=(MERCADO.grupos||{})[gn]||[]; if(!items.length) return;
+      var gm=GROUPMETA[gn];
+      html+='<div class="mkt-group" style="--tc:'+gm.c+'"><div class="gh"><span class="dot"></span><h3>'+gm.label+'</h3><span>'+items.length+'</span></div><div class="mkt-cards">'+
+        items.map(function(it){
+          var chg=(gn==="Indicadores del Estado")?null:changeOf(it);
+          var badge=chg?'<span class="chgbadge '+(chg.pct>=0?"pos":"neg")+'">'+(chg.pct>=0?"▲":"▼")+" "+nAR(Math.abs(chg.pct),1)+'%</span>':'';
+          var tk=it.ticker?'<span class="tk">'+it.ticker+'</span>':'';
+          return '<button class="mkt-card" data-market="'+it.key+'" style="--tc:'+gm.c+'"><div class="nm">'+acc(it.name)+'</div><div class="vl">'+fmtVal(it)+'</div><div class="row">'+badge+tk+'</div></button>';
+        }).join("")+
+      '</div></div>';
+    });
+    return html;
+  }
+
+  function mercadoDetailHTML(key){
+    var it=BYKEY[key]; if(!it) return mercadoIndexHTML();
+    var gm=GROUPMETA[it._group]||{c:"var(--accent)",label:it._group};
+    var chg=changeOf(it);
+    var badge=chg?'<span class="chgbadge '+(chg.pct>=0?"pos":"neg")+'">'+(chg.pct>=0?"▲":"▼")+" "+nAR(Math.abs(chg.pct),1)+"% "+chg.per+'</span>':'';
+    var head='<button class="backbtn" data-market-index>'+svg('<path d="M15 18l-6-6 6-6"/>')+' Volver a Mercado</button>'+
+      '<div class="detail-head" style="margin-top:14px"><div><span class="eyebrow" style="color:'+gm.c+'">'+gm.label+'</span><h2 style="font-size:clamp(24px,3.4vw,32px);margin-top:4px">'+acc(it.name)+'</h2></div><span class="asof">● Dato real al '+(MERCADO.generado||"")+'</span></div>'+
+      '<div style="display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin:8px 0 16px"><span class="detail-val">'+fmtVal(it)+'</span>'+badge+'</div>';
+    var body;
+    if(it.hist && it.hist.length>1){
+      body='<div class="chartwrap" style="--tc:'+gm.c+'"><div style="font-size:12px;color:var(--muted);font-weight:700;margin-bottom:8px">Evolución mensual · último año</div>'+chartSVG(it.hist, cssColor(gm.c), it.unit)+'</div>';
+    }else{
+      body='<div class="notebox">'+(it.nota||"Serie histórica no disponible en la fuente gratuita.")+'</div>';
+    }
+    var extra='';
+    if(it.compra!=null||it.venta!=null){ extra='<div style="display:flex;gap:26px;margin-top:14px;font-size:13px;color:var(--muted)"><div>Compra<br><b style="color:var(--fg);font-size:17px">'+fmtVal({val:it.compra,unit:"ARS"})+'</b></div><div>Venta<br><b style="color:var(--fg);font-size:17px">'+fmtVal({val:it.venta,unit:"ARS"})+'</b></div></div>'; }
+    var src='<p style="font-size:12px;color:var(--muted);margin-top:14px">Fuente: '+(it.src||"")+' · Dato embebido en la maqueta; en la app se actualiza solo.</p>';
+    return head+body+extra+src;
+  }
+
+  var mercadoContent=document.getElementById("mercadoContent");
+  function renderMercado(key){ mercadoContent.innerHTML = key ? mercadoDetailHTML(key) : mercadoIndexHTML(); if(key) window.scrollTo({top:0,behavior:"auto"}); }
+
+  function renderHomeStrip(){
+    var strip=document.getElementById("homeStrip"); if(!strip) return;
+    var keys=["dolar_oficial","dolar_blue","dolar_bolsa","ipc","riesgo"];
+    strip.innerHTML=keys.map(function(k){
+      var it=BYKEY[k]; if(!it) return "";
+      var gm=GROUPMETA[it._group];
+      var chg=(it._group==="Indicadores del Estado")?null:changeOf(it);
+      var d=chg?'<div class="d '+(chg.pct>=0?"pos":"neg")+'">'+(chg.pct>=0?"▲":"▼")+" "+nAR(Math.abs(chg.pct),1)+'%</div>':'<div class="d muted">'+(it.unit==="%"?"mensual":it.unit)+'</div>';
+      return '<button class="tile" data-market="'+k+'" style="--tc:'+gm.c+';cursor:pointer;text-align:left;width:100%"><div class="k">'+acc(it.name)+'</div><div class="v">'+fmtVal(it)+'</div>'+d+'</button>';
+    }).join("");
+  }
+
+  document.addEventListener("click",function(e){
+    var mi=e.target.closest("[data-market]"); if(mi){ e.preventDefault(); renderMercado(mi.getAttribute("data-market")); show("mercado"); return; }
+    if(e.target.closest("[data-market-index]")){ e.preventDefault(); renderMercado(null); show("mercado"); return; }
+  });
+
   // init
   renderAuth();
   renderAprender(null);
+  renderMercado(null);
+  renderHomeStrip();
 })();
 </script>
