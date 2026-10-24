@@ -320,6 +320,19 @@
   .tool-res .brk3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
   .tool-res .bk{border:1px solid var(--border);border-top:3px solid var(--tc);border-radius:10px;padding:10px;font-size:11.5px;color:var(--muted)}
   .tool-res .bk b{display:block;color:var(--fg);font-family:var(--font-display);font-size:17px;margin-top:3px;font-variant-numeric:tabular-nums}
+  /* Herramientas: menú por pasos de La Ruta + deep-link */
+  .tool{scroll-margin-top:84px}
+  .toolmenu{display:flex;flex-wrap:wrap;gap:8px;margin:0 0 18px}
+  .toolmenu .tm{display:inline-flex;align-items:center;gap:8px;font-size:13px;font-weight:700;color:var(--fg);background:var(--surface);border:1px solid var(--border);border-radius:999px;padding:7px 12px 7px 7px;cursor:pointer;text-decoration:none}
+  .toolmenu .tm:hover{border-color:var(--accent)}
+  .toolmenu .tm .n{width:22px;height:22px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:12px}
+  .tool-step{display:inline-flex;align-items:center;gap:8px;font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--accent-strong);margin-bottom:10px}
+  .tool-step .n{width:20px;height:20px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-family:var(--font-display);font-size:11px;letter-spacing:0}
+  .tool-why{font-size:12.5px;color:var(--accent-strong);background:var(--accent-soft);border-radius:10px;padding:8px 10px;margin:-4px 0 12px}
+  .tool.flash{box-shadow:0 0 0 3px var(--accent);transition:box-shadow .3s}
+  .tool .tool-go{display:inline-flex;align-items:center;gap:6px;margin-top:4px}
+  .rbody .rlink{display:inline-block;margin-top:8px;font-size:13px;font-weight:700;color:var(--accent-strong);text-decoration:none}
+  .rbody .rlink:hover{text-decoration:underline}
   @media(max-width:520px){.tool-res .brk3{grid-template-columns:1fr}}
 </style>
 
@@ -694,7 +707,10 @@
     var lz=e.target.closest("[data-lesson]"); if(lz){ e.preventDefault(); renderAprender(lz.getAttribute("data-lesson")); show("aprender"); return; }
     if(e.target.closest("[data-aprender]")){ e.preventDefault(); renderAprender(null); show("aprender"); return; }
     var term=e.target.closest("[data-term]"); if(term){ e.preventDefault(); show("glosario"); var inp=document.getElementById("glsearch"); if(inp){ inp.value=term.getAttribute("data-term"); renderGloss(inp.value);} return; }
-    var g=e.target.closest("[data-goto]"); if(g){ e.preventDefault(); var t=g.getAttribute("data-goto"); if(t==="aprender") renderAprender(null); if(t==="mercado") renderMercado(null); if(t==="herramientas") renderHerramientas(); show(t); return; }
+    var tj=e.target.closest("[data-tool]:not([data-goto])"); if(tj){ e.preventDefault(); focusTool(tj.getAttribute("data-tool")); return; }
+    var g=e.target.closest("[data-goto]"); if(g){ e.preventDefault(); var t=g.getAttribute("data-goto"); if(t==="aprender") renderAprender(null); if(t==="mercado") renderMercado(null); if(t==="herramientas") renderHerramientas(); show(t);
+      var tool=g.getAttribute("data-tool"); if(tool) setTimeout(function(){ focusTool(tool); },80); // después del scrollTo(0) de show()
+      return; }
   });
 
   // Quiz (delegado)
@@ -819,22 +835,53 @@
   ]};
   function rutaHTML(){
     var cards=RUTA.pasos.map(function(p){
-      var btn = (p.herramienta && p.herramienta!=="simulador-deudas") ? '<button class="btn ghost sm" data-goto="herramientas">Abrir calculadora</button>' : '<span class="soon">Simulador de deudas: próximamente</span>';
-      return '<div class="rstep"><div class="rnum">'+p.order+'</div><div class="rbody"><h4>'+p.title+'</h4><p>'+p.body+'</p><p class="rtip">💡 '+p.tip+'</p>'+btn+'</div></div>';
+      // Las recomendaciones de calculadora viven en Herramientas; acá queda solo un link directo a la herramienta del paso.
+      var t=TOOLS[p.herramienta], link="";
+      if(t){ link = t.href ? '<a class="rlink" href="'+t.href+'">Herramienta: '+t.menu+' →</a>' : '<a class="rlink" href="#" data-goto="herramientas" data-tool="'+t.el+'">Herramienta: '+t.menu+' →</a>'; }
+      return '<div class="rstep"><div class="rnum">'+p.order+'</div><div class="rbody"><h4>'+p.title+'</h4><p>'+p.body+'</p><p class="rtip">💡 '+p.tip+'</p>'+link+'</div></div>';
     }).join("");
     return '<div class="rutawrap"><span class="eyebrow">La ruta</span><h2 style="font-size:clamp(24px,3.6vw,32px);margin:6px 0 2px">'+RUTA.title+'</h2><p class="muted" style="max-width:66ch;margin-bottom:6px">'+RUTA.intro+'</p><div class="rsteps">'+cards+'</div></div><hr style="border:0;border-top:1px solid var(--border);margin:30px 0">';
   }
 
   // ===== HERRAMIENTAS (calculadoras, client-side) =====
   function fld(id,label,val){ return '<label class="fld"><span>'+label+'</span><input id="'+id+'" type="number" value="'+val+'" inputmode="decimal"></label>'; }
-  function toolInteres(){ return '<div class="tool" id="tool-interes"><div class="tool-h"><span class="tool-ic" style="--tc:var(--accent)">'+svg('<path d="M4 18 L10 11 L14 15 L20 7"/><path d="M15 7h5v5"/>')+'</span><h3>Interés compuesto</h3></div><p class="tool-d">Cuánto puede crecer tu dinero con el tiempo si lo dejás rindiendo.</p><div class="tool-grid">'+fld("ci-capital","Capital inicial ($)",100000)+fld("ci-aporte","Aporte por mes ($)",20000)+fld("ci-tasa","Tasa anual (%)",40)+fld("ci-anios","Años",5)+'</div><div class="tool-res" id="ci-res"></div></div>'; }
-  function toolMeta(){ return '<div class="tool" id="tool-meta"><div class="tool-h"><span class="tool-ic" style="--tc:var(--blue)">'+svg('<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/>')+'</span><h3>Meta de ahorro</h3></div><p class="tool-d">Cuánto guardar por mes para llegar a un objetivo.</p><div class="tool-grid">'+fld("me-meta","Meta ($)",1000000)+fld("me-plazo","Plazo (meses)",12)+fld("me-tasa","Tasa anual (%)",40)+'</div><div class="tool-res" id="me-res"></div></div>'; }
-  function toolFondo(){ return '<div class="tool" id="tool-fondo"><div class="tool-h"><span class="tool-ic" style="--tc:var(--amber)">'+svg('<path d="M12 15v2M6 10V7a6 6 0 0 1 12 0v3"/><rect x="4" y="10" width="16" height="11" rx="2"/>')+'</span><h3>Fondo de emergencia</h3></div><p class="tool-d">El colchón para imprevistos: 3 a 6 meses de gastos.</p><div class="tool-grid">'+fld("fe-gasto","Gasto por mes ($)",350000)+fld("fe-meses","Meses de colchón",6)+'</div><div class="tool-res" id="fe-res"></div></div>'; }
-  function toolPresu(){ return '<div class="tool" id="tool-presupuesto"><div class="tool-h"><span class="tool-ic" style="--tc:var(--violet)">'+svg('<path d="M12 3v9l6 4"/><circle cx="12" cy="12" r="9"/>')+'</span><h3>Presupuesto 50 / 30 / 20</h3></div><p class="tool-d">Una forma simple de repartir tu ingreso mensual.</p><div class="tool-grid">'+fld("pr-ingreso","Ingreso por mes ($)",800000)+'</div><div class="tool-res" id="pr-res"></div></div>'; }
+  // Tarjeta de herramienta: etiqueta "Paso N · título" + recomendación (cuándo usarla) + contenido.
+  function toolCard(m,color,icon,h3,desc,inner){
+    var step = m.paso ? '<div class="tool-step"><span class="n">'+m.paso.order+'</span>'+m.paso.title+'</div>' : '';
+    return '<div class="tool" id="'+m.el+'">'+step+'<div class="tool-h"><span class="tool-ic" style="--tc:'+color+'">'+svg(icon)+'</span><h3>'+h3+'</h3></div><p class="tool-d">'+desc+'</p><p class="tool-why">💡 '+m.why+'</p>'+inner+'</div>';
+  }
+  function toolInteres(m){ return toolCard(m,"var(--accent)",'<path d="M4 18 L10 11 L14 15 L20 7"/><path d="M15 7h5v5"/>',"Interés compuesto","Cuánto puede crecer tu dinero con el tiempo si lo dejás rindiendo.",'<div class="tool-grid">'+fld("ci-capital","Capital inicial ($)",100000)+fld("ci-aporte","Aporte por mes ($)",20000)+fld("ci-tasa","Tasa anual (%)",40)+fld("ci-anios","Años",5)+'</div><div class="tool-res" id="ci-res"></div>'); }
+  function toolMeta(m){ return toolCard(m,"var(--blue)",'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/>',"Meta de ahorro","Cuánto guardar por mes para llegar a un objetivo.",'<div class="tool-grid">'+fld("me-meta","Meta ($)",1000000)+fld("me-plazo","Plazo (meses)",12)+fld("me-tasa","Tasa anual (%)",40)+'</div><div class="tool-res" id="me-res"></div>'); }
+  function toolFondo(m){ return toolCard(m,"var(--amber)",'<path d="M12 15v2M6 10V7a6 6 0 0 1 12 0v3"/><rect x="4" y="10" width="16" height="11" rx="2"/>',"Fondo de emergencia","El colchón para imprevistos: 3 a 6 meses de gastos.",'<div class="tool-grid">'+fld("fe-gasto","Gasto por mes ($)",350000)+fld("fe-meses","Meses de colchón",6)+'</div><div class="tool-res" id="fe-res"></div>'); }
+  function toolPresu(m){ return toolCard(m,"var(--violet)",'<path d="M12 3v9l6 4"/><circle cx="12" cy="12" r="9"/>',"Presupuesto 50 / 30 / 20","Una forma simple de repartir tu ingreso mensual.",'<div class="tool-grid">'+fld("pr-ingreso","Ingreso por mes ($)",800000)+'</div><div class="tool-res" id="pr-res"></div>'); }
+  function toolDeudas(m){ return toolCard(m,"var(--pink)",'<path d="M4 18 L10 13 L14 16 L20 8"/><path d="M4 8h6M4 12h4"/>',"Simulador de deudas","Compará los métodos avalancha y bola de nieve para ver con cuál salís antes y pagás menos interés.",'<a class="btn primary sm tool-go" href="'+m.href+'">Abrir el simulador →</a>'); }
+
+  // Una sola fuente de datos: cada paso de La Ruta apunta a su herramienta (clave = RUTA.pasos[i].herramienta).
+  // Herramientas se arma en el orden de La Ruta a partir de acá; La Ruta solo enlaza.
+  var TOOLS={
+    "presupuesto":      {el:"tool-presupuesto", menu:"Presupuesto",         render:toolPresu,   why:"Antes de decidir nada, mirá cómo se reparte tu ingreso. La regla 50 / 30 / 20 te da un mapa rápido para empezar."},
+    "fondo-emergencia": {el:"tool-fondo",       menu:"Fondo de emergencia", render:toolFondo,   why:"Calculá tu colchón: entre 3 y 6 meses de gastos básicos, en una cuenta de fácil acceso."},
+    "simulador-deudas": {el:"tool-deudas",      menu:"Deudas",              render:toolDeudas,  why:"Ordená tus deudas por tasa y atacá la más cara; pagá siempre más que el mínimo.", href:"simulador-deudas.html"},
+    "meta-ahorro":      {el:"tool-meta",        menu:"Meta de ahorro",      render:toolMeta,    why:"Pagate a vos primero: fijá un monto por mes. Empezá con poco, aunque sea 5%, y subilo cada vez que te aumenten."},
+    "interes-compuesto":{el:"tool-interes",     menu:"Interés compuesto",   render:toolInteres, why:"Con los pasos anteriores resueltos, mirá cuánto puede crecer tu plata con tiempo y paciencia."}
+  };
+  function toolsEnOrden(){ return RUTA.pasos.map(function(p){ var t=TOOLS[p.herramienta]; return t ? {t:t, paso:p} : null; }).filter(Boolean); }
   function renderHerramientas(){
     var el=document.getElementById("herramientasContent"); if(!el) return;
-    el.innerHTML='<span class="eyebrow">Herramientas</span><h2 style="font-size:clamp(24px,3.6vw,34px);margin:6px 0 4px">Calculadoras</h2><p class="muted" style="max-width:68ch;margin-bottom:20px">Poné números a tus decisiones. Todo se calcula en tu navegador, sin guardar nada. Son orientativas, con fines educativos.</p><div class="tools">'+toolInteres()+toolMeta()+toolFondo()+toolPresu()+'</div>';
+    var lista=toolsEnOrden();
+    var menu=lista.map(function(x){
+      var inner='<span class="n">'+x.paso.order+'</span>'+x.t.menu;
+      return x.t.href ? '<a class="tm" href="'+x.t.href+'">'+inner+'</a>' : '<button class="tm" type="button" data-tool="'+x.t.el+'">'+inner+'</button>';
+    }).join("");
+    var cards=lista.map(function(x){ return x.t.render({el:x.t.el, why:x.t.why, href:x.t.href, paso:x.paso}); }).join("");
+    el.innerHTML='<span class="eyebrow">Herramientas</span><h2 style="font-size:clamp(24px,3.6vw,34px);margin:6px 0 4px">Calculadoras, en el orden de La Ruta</h2><p class="muted" style="max-width:68ch;margin-bottom:16px">Cada calculadora acompaña un paso. Poné números a tus decisiones: todo se calcula en tu navegador, sin guardar nada. Son orientativas, con fines educativos.</p><div class="toolmenu">'+menu+'</div><div class="tools">'+cards+'</div>';
     recomputeHerramientas();
+  }
+  // Deep-link a una calculadora: scroll + resaltado breve.
+  function focusTool(id){
+    var t=document.getElementById(id); if(!t) return;
+    t.scrollIntoView({behavior:"smooth",block:"start"});
+    t.classList.add("flash"); setTimeout(function(){ t.classList.remove("flash"); },1600);
   }
   function hnum(id){ var e=document.getElementById(id); if(!e) return 0; var v=parseFloat(e.value); return isNaN(v)?0:v; }
   function money(v){ if(!isFinite(v)) return "—"; return "$ "+nAR(Math.round(v),0); }
