@@ -66,6 +66,7 @@
   .gbtn svg{width:18px;height:18px;flex:none}
   .userchip{display:flex; align-items:center; gap:9px; border:1px solid var(--border); background:var(--surface); border-radius:999px; padding:4px 12px 4px 4px; cursor:pointer;}
   .avatar{width:32px;height:32px;border-radius:50%;background:var(--grad);color:#fff;display:grid;place-items:center;font-weight:700;font-size:13px;flex:none;}
+  img.avatar{object-fit:cover}
   .userchip .nm{font-size:13px;font-weight:600;line-height:1.1}
   .userchip .em{font-size:11px;color:var(--muted)}
 
@@ -485,10 +486,16 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 (function(){
   "use strict";
   var root=document.documentElement;
+  // Login con Google: pegar acá el Client ID (OAuth 2.0, tipo "Aplicación web") creado en Google Cloud Console →
+  // APIs y servicios → Credenciales. Es un identificador PÚBLICO (no es un secreto); lo que lo protege es la lista de
+  // "Orígenes de JavaScript autorizados", donde tienen que estar https://finanzas-app-pi-ruddy.vercel.app y, para probar
+  // en local, http://localhost:8765 y http://127.0.0.1:8765. Vacío → el login queda SIMULADO (selector de la maqueta).
+  var GOOGLE_CLIENT_ID="";
   var DEMO={name:"María López", email:"maria.lopez@gmail.com", initials:"ML"};
   var state={ user:null };
 
@@ -745,23 +752,53 @@
     fb.innerHTML=(correct?"<b>¡Correcto! ✓</b> ":"<b>Casi.</b> ")+q.fb;
   });
 
-  // ---- Login simulado ----
+  // ---- Login con Google (Google Identity Services) con fallback simulado ----
+  // Con GOOGLE_CLIENT_ID y este origen autorizado: botón oficial de Google + One Tap, identidad real (nombre, email, foto).
+  // Sin backend: la sesión vive solo en este navegador (localStorage) y el token NO se verifica en un servidor;
+  // alcanza para identificar al usuario y guardar su progreso local, no para proteger datos sensibles.
+  function googleReady(){ return !!(GOOGLE_CLIENT_ID && window.google && google.accounts && google.accounts.id); }
+  var gInit=false;
+  function initGoogle(){
+    if(gInit||!googleReady()) return; gInit=true;
+    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID, callback:onGoogleCredential, auto_select:false, cancel_on_tap_outside:true, ux_mode:"popup"});
+  }
+  function parseJwt(t){ try{ var p=t.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"); return JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(p),function(c){ return "%"+("00"+c.charCodeAt(0).toString(16)).slice(-2); }).join(""))); }catch(e){ return null; } }
+  function onGoogleCredential(resp){
+    var c=parseJwt(resp&&resp.credential); if(!c||!c.email) return;
+    var name=c.name||c.email.split("@")[0];
+    var ini=name.split(" ").filter(Boolean).slice(0,2).map(function(s){ return s[0].toUpperCase(); }).join("");
+    var ov=document.querySelector(".overlay"); if(ov) ov.remove();
+    login({name:name, email:c.email, initials:ini, picture:c.picture||"", sub:c.sub, real:true});
+  }
   function openLogin(){
     var ov=document.createElement("div"); ov.className="overlay";
-    ov.innerHTML='<div class="modal" role="dialog" aria-label="Iniciar sesión con Google"><div class="mh"><span class="glogo">'+gIcon(40)+'</span><h3>Elegí una cuenta</h3><p>para continuar en Plata Clara</p></div><div class="accounts"><button class="acc" id="accDemo"><span class="avatar">'+DEMO.initials+'</span><span><span class="nm">'+DEMO.name+'</span><br><span class="em">'+DEMO.email+'</span></span></button><button class="acc other"><span class="avatar">+</span>Usar otra cuenta</button></div><div class="mf">🔒 Inicio de sesión <b>simulado</b> · maqueta de diseño. No se pide contraseña ni se conecta a Google.</div></div>';
+    var real=googleReady();
+    ov.innerHTML='<div class="modal" role="dialog" aria-label="Iniciar sesión con Google"><div class="mh"><span class="glogo">'+gIcon(40)+'</span><h3>'+(real?'Continuá con Google':'Elegí una cuenta')+'</h3><p>para continuar en Plata Clara</p></div>'
+      +(real
+        ? '<div class="accounts" style="display:grid;place-items:center;padding:14px"><div id="gsiBtn"></div></div><div class="mf">🔒 Inicio de sesión con tu cuenta de Google. Guardamos tu nombre y email <b>solo en este navegador</b>; no pedimos contraseña.</div>'
+        : '<div class="accounts"><button class="acc" id="accDemo"><span class="avatar">'+DEMO.initials+'</span><span><span class="nm">'+DEMO.name+'</span><br><span class="em">'+DEMO.email+'</span></span></button><button class="acc other"><span class="avatar">+</span>Usar otra cuenta</button></div><div class="mf">🔒 Inicio de sesión <b>simulado</b> · maqueta de diseño. No se pide contraseña ni se conecta a Google.</div>')
+      +'</div>';
     ov.addEventListener("click",function(ev){ if(ev.target===ov) ov.remove(); });
     document.body.appendChild(ov);
-    document.getElementById("accDemo").addEventListener("click",function(){ ov.remove(); login(DEMO); });
+    if(real){
+      initGoogle();
+      google.accounts.id.renderButton(document.getElementById("gsiBtn"),{theme:"outline",size:"large",text:"continue_with",shape:"pill",locale:"es",width:280});
+      google.accounts.id.prompt(); // One Tap, si el navegador lo permite
+    }else{
+      document.getElementById("accDemo").addEventListener("click",function(){ ov.remove(); login(DEMO); });
+    }
   }
-  function login(u){ state.user=u; renderAuth(); show("avances"); }
-  function logout(){ state.user=null; renderAuth(); renderHeroCard(); show("inicio"); }
+  function saveSession(u){ try{ if(u) localStorage.setItem("pc-user",JSON.stringify(u)); else localStorage.removeItem("pc-user"); }catch(e){} }
+  function login(u){ state.user=u; saveSession(u); renderAuth(); show("avances"); }
+  function logout(){ state.user=null; saveSession(null); try{ if(window.google&&google.accounts&&google.accounts.id) google.accounts.id.disableAutoSelect(); }catch(e){} renderAuth(); renderHeroCard(); show("inicio"); }
+  function avatarHTML(u){ return u.picture ? '<img class="avatar" src="'+u.picture+'" alt="" referrerpolicy="no-referrer">' : '<span class="avatar">'+u.initials+'</span>'; }
 
   var authArea=document.getElementById("authArea");
   function renderAuth(){
     if(!state.user){
       authArea.innerHTML='<button class="gbtn" data-login>'+gIcon(18)+'<span>Iniciar sesión</span></button>';
     }else{
-      authArea.innerHTML='<button class="userchip" id="userChip"><span class="avatar">'+state.user.initials+'</span><span><span class="nm">'+state.user.name+'</span><br><span class="em">'+state.user.email+'</span></span></button>';
+      authArea.innerHTML='<button class="userchip" id="userChip">'+avatarHTML(state.user)+'<span><span class="nm">'+state.user.name+'</span><br><span class="em">'+state.user.email+'</span></span></button>';
       document.getElementById("userChip").addEventListener("click",function(e){ e.stopPropagation(); toggleMenu(); });
     }
     renderHeroCard();
@@ -799,7 +836,7 @@
       {t:"Racha de 5 días",s:"5 días seguidos",c:"#D97706",on:true,ic:'<path d="M12 3c1 4-2 5-2 8a4 4 0 0 0 8 0c0-2-1-3-1-5 2 1 3 3 3 6a7 7 0 0 1-14 0c0-4 4-6 6-9z"/>'},
       {t:"Inversor junior",s:"Completá 5 temas",c:"#7C3AED",on:false,ic:'<path d="M12 2l2.5 6.5L21 9l-5 4 1.5 7L12 16l-5.5 4L8 13 3 9l6.5-.5z"/>'}
     ];
-    dash.innerHTML='<div class="dashtop">'+ring(32)+'<div class="who"><h2>¡Hola de nuevo, '+state.user.name.split(" ")[0]+'!</h2><span class="sync">'+svg('<path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/>')+' Sincronizado con tu Google · '+state.user.email+'</span></div></div>'+
+    dash.innerHTML='<div class="dashtop">'+ring(32)+'<div class="who"><h2>¡Hola de nuevo, '+state.user.name.split(" ")[0]+'!</h2><span class="sync">'+svg('<path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/>')+(state.user.real?' Sesión con Google · guardado en este navegador · ':' Sesión simulada · ')+state.user.email+'</span></div></div>'+
       '<div class="stats"><div class="stat" style="--tc:var(--accent)"><div class="n">7</div><div class="l">Lecciones completadas</div></div><div class="stat" style="--tc:var(--blue)"><div class="n">3</div><div class="l">Temas empezados</div></div><div class="stat" style="--tc:var(--amber)"><div class="n">5</div><div class="l">Días de racha 🔥</div></div><div class="stat" style="--tc:var(--violet)"><div class="n">82%</div><div class="l">Promedio en quizzes</div></div></div>'+
       '<div class="continue"><div class="meta"><span class="eyebrow">Seguí donde dejaste</span><h3 style="font-size:18px;margin-top:4px">Acciones · ¿De dónde sale la ganancia?</h3><p class="muted" style="font-size:13px;margin-top:4px">Renta variable · módulo 1</p></div><button class="btn primary" data-lesson="acciones">Continuar</button></div>'+
       '<h3 style="margin-top:26px;font-size:18px">Tus logros</h3><div class="badges">'+badges.map(function(b){ return '<div class="badge'+(b.on?'':' off')+'"><span class="b-ic" style="background:'+b.c+'">'+'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+b.ic+'</svg></span><span><span class="b-t">'+b.t+'</span><br><span class="b-s">'+b.s+'</span></span></div>'; }).join("")+'</div>';
@@ -1060,6 +1097,7 @@
   });
 
   // init
+  try{ var su=localStorage.getItem("pc-user"); if(su) state.user=JSON.parse(su); }catch(e){} // sesión guardada en este navegador
   renderAuth();
   renderAprender(null);
   renderMercado(null);
