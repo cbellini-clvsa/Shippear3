@@ -333,6 +333,25 @@
   .tool .tool-go{display:inline-flex;align-items:center;gap:6px;margin-top:4px}
   .rbody .rlink{display:inline-block;margin-top:8px;font-size:13px;font-weight:700;color:var(--accent-strong);text-decoration:none}
   .rbody .rlink:hover{text-decoration:underline}
+  /* Deslizadores, barras y leyendas (unificado desde herramientas.html) */
+  .fld.rng{gap:6px}
+  .fld.rng span b{color:var(--fg)}
+  .fld.rng input[type=range]{padding:0;border:0;background:transparent;accent-color:var(--accent);width:100%;height:auto}
+  .fld.rng input[type=range]:focus{outline:none}
+  .tool-grid .full{grid-column:1 / -1}
+  .tbar{display:flex;height:14px;width:100%;overflow:hidden;border-radius:999px;background:var(--surface-2);margin-top:12px}
+  .tbar>span{transition:width .25s ease}
+  .tlegend{list-style:none;padding:0;margin:12px 0 0;display:grid;gap:8px}
+  .tlegend li{display:flex;align-items:center;gap:10px;font-size:12.5px;color:var(--muted)}
+  .tlegend .dot{width:10px;height:10px;border-radius:50%;flex:none}
+  .tlegend .lm{flex:1;min-width:0}
+  .tlegend .lm b{color:var(--fg);font-size:13px}
+  .tlegend .lm .h{display:block;font-size:11.5px}
+  .tlegend .amt{font-family:var(--font-display);font-weight:800;color:var(--fg);font-variant-numeric:tabular-nums}
+  .tnote{margin-top:10px;background:var(--surface-2);border-radius:10px;padding:8px 10px;font-size:12.5px;color:var(--fg)}
+  .tsplit{height:10px;border-radius:999px;overflow:hidden;display:flex;background:var(--surface-2);margin-top:10px}
+  .tsplit .cap{background:var(--blue)} .tsplit .int{background:var(--accent)}
+  .tsplitlbl{display:flex;justify-content:space-between;font-size:11.5px;color:var(--muted);margin-top:5px}
   @media(max-width:520px){.tool-res .brk3{grid-template-columns:1fr}}
 </style>
 
@@ -844,16 +863,18 @@
   }
 
   // ===== HERRAMIENTAS (calculadoras, client-side) =====
-  function fld(id,label,val){ return '<label class="fld"><span>'+label+'</span><input id="'+id+'" type="number" value="'+val+'" inputmode="decimal"></label>'; }
+  function fld(id,label,val,cls){ return '<label class="fld'+(cls?' '+cls:'')+'"><span>'+label+'</span><input id="'+id+'" type="number" value="'+val+'" inputmode="decimal"></label>'; }
+  // Deslizador con el valor visible en la etiqueta (el <b id="<id>-val"> lo actualiza recomputeHerramientas).
+  function rng(id,label,val,min,max,step,suf,cls){ return '<label class="fld rng'+(cls?' '+cls:'')+'"><span>'+label+': <b id="'+id+'-val">'+val+'</b>'+(suf||'')+'</span><input id="'+id+'" type="range" min="'+min+'" max="'+max+'" step="'+step+'" value="'+val+'"></label>'; }
   // Tarjeta de herramienta: etiqueta "Paso N · título" + recomendación (cuándo usarla) + contenido.
   function toolCard(m,color,icon,h3,desc,inner){
     var step = m.paso ? '<div class="tool-step"><span class="n">'+m.paso.order+'</span>'+m.paso.title+'</div>' : '';
     return '<div class="tool" id="'+m.el+'">'+step+'<div class="tool-h"><span class="tool-ic" style="--tc:'+color+'">'+svg(icon)+'</span><h3>'+h3+'</h3></div><p class="tool-d">'+desc+'</p><p class="tool-why">💡 '+m.why+'</p>'+inner+'</div>';
   }
   function toolInteres(m){ return toolCard(m,"var(--accent)",'<path d="M4 18 L10 11 L14 15 L20 7"/><path d="M15 7h5v5"/>',"Interés compuesto","Cuánto puede crecer tu dinero con el tiempo si lo dejás rindiendo.",'<div class="tool-grid">'+fld("ci-capital","Capital inicial ($)",100000)+fld("ci-aporte","Aporte por mes ($)",20000)+fld("ci-tasa","Tasa anual (%)",40)+fld("ci-anios","Años",5)+'</div><div class="tool-res" id="ci-res"></div>'); }
-  function toolMeta(m){ return toolCard(m,"var(--blue)",'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/>',"Meta de ahorro","Cuánto guardar por mes para llegar a un objetivo.",'<div class="tool-grid">'+fld("me-meta","Meta ($)",1000000)+fld("me-plazo","Plazo (meses)",12)+fld("me-tasa","Tasa anual (%)",40)+'</div><div class="tool-res" id="me-res"></div>'); }
-  function toolFondo(m){ return toolCard(m,"var(--amber)",'<path d="M12 15v2M6 10V7a6 6 0 0 1 12 0v3"/><rect x="4" y="10" width="16" height="11" rx="2"/>',"Fondo de emergencia","El colchón para imprevistos: 3 a 6 meses de gastos.",'<div class="tool-grid">'+fld("fe-gasto","Gasto por mes ($)",350000)+fld("fe-meses","Meses de colchón",6)+'</div><div class="tool-res" id="fe-res"></div>'); }
-  function toolPresu(m){ return toolCard(m,"var(--violet)",'<path d="M12 3v9l6 4"/><circle cx="12" cy="12" r="9"/>',"Presupuesto 50 / 30 / 20","Una forma simple de repartir tu ingreso mensual.",'<div class="tool-grid">'+fld("pr-ingreso","Ingreso por mes ($)",800000)+'</div><div class="tool-res" id="pr-res"></div>'); }
+  function toolMeta(m){ return toolCard(m,"var(--blue)",'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/><circle cx="12" cy="12" r="0.6" fill="currentColor"/>',"Meta de ahorro","Cuánto guardar por mes para llegar a un objetivo. Un viaje, una compu, un anticipo: ponerle fecha y monto lo vuelve real.",'<div class="tool-grid">'+fld("me-meta","Meta ($)",1000000)+fld("me-ahorrado","Ya tenés ahorrado ($)",200000)+fld("me-plazo","Plazo (meses)",12)+fld("me-tasa","Tasa anual (%)",40)+'</div><div class="tool-res" id="me-res"></div>'); }
+  function toolFondo(m){ return toolCard(m,"var(--amber)",'<path d="M12 15v2M6 10V7a6 6 0 0 1 12 0v3"/><rect x="4" y="10" width="16" height="11" rx="2"/>',"Fondo de emergencia","El colchón para imprevistos: 3 a 6 meses de gastos básicos.",'<div class="tool-grid">'+fld("fe-gasto","Gasto básico por mes ($)",350000,"full")+rng("fe-meses","Meses de cobertura",6,3,12,1,"","full")+'</div><div class="tool-res" id="fe-res"></div>'); }
+  function toolPresu(m){ return toolCard(m,"var(--violet)",'<path d="M12 3v9l6 4"/><circle cx="12" cy="12" r="9"/>',"Presupuesto 50 / 30 / 20","Probá con la regla 50 / 30 / 20 y movela a tu gusto: el ahorro es lo que queda.",'<div class="tool-grid">'+fld("pr-ingreso","¿Cuánto cobrás al mes? ($)",800000,"full")+rng("pr-nec","Necesidades",50,30,70,5,"%")+rng("pr-gus","Gustos",30,5,50,5,"%")+'</div><div class="tool-res" id="pr-res"></div>'); }
   function toolDeudas(m){ return toolCard(m,"var(--pink)",'<path d="M4 18 L10 13 L14 16 L20 8"/><path d="M4 8h6M4 12h4"/>',"Simulador de deudas","Compará los métodos avalancha y bola de nieve para ver con cuál salís antes y pagás menos interés.",'<a class="btn primary sm tool-go" href="'+m.href+'">Abrir el simulador →</a>'); }
 
   // Una sola fuente de datos: cada paso de La Ruta apunta a su herramienta (clave = RUTA.pasos[i].herramienta).
@@ -887,13 +908,22 @@
   function money(v){ if(!isFinite(v)) return "—"; return "$ "+nAR(Math.round(v),0); }
   function recomputeHerramientas(){
     var ci=document.getElementById("ci-res");
-    if(ci){ var cap=hnum("ci-capital"),ap=hnum("ci-aporte"),ta=hnum("ci-tasa"),an=hnum("ci-anios"); var r=ta/100/12,n=Math.round(an*12),fv; if(r===0){fv=cap+ap*n;}else{var f=Math.pow(1+r,n);fv=cap*f+ap*(f-1)/r;} var aport=cap+ap*n; ci.innerHTML='<div class="big">'+money(fv)+'</div><div class="brk"><span>Aportado: <b>'+money(aport)+'</b></span><span>Intereses: <b style="color:var(--pos)">'+money(fv-aport)+'</b></span></div>'; }
+    if(ci){ var cap=hnum("ci-capital"),ap=hnum("ci-aporte"),ta=hnum("ci-tasa"),an=hnum("ci-anios"); var r=ta/100/12,n=Math.round(an*12),fv; if(r===0){fv=cap+ap*n;}else{var f=Math.pow(1+r,n);fv=cap*f+ap*(f-1)/r;} var aport=cap+ap*n, gan=Math.max(0,fv-aport), sh=fv>0?Math.round(gan/fv*100):0;
+      ci.innerHTML='<div class="big">'+money(fv)+'</div><div class="brk"><span>Aportado: <b>'+money(aport)+'</b></span><span>Intereses: <b style="color:var(--pos)">'+money(gan)+'</b></span></div><div class="tsplit" role="img" aria-label="'+sh+'% del total viene de intereses"><span class="cap" style="width:'+(100-sh)+'%"></span><span class="int" style="width:'+sh+'%"></span></div><div class="tsplitlbl"><span>Lo que pusiste</span><span>'+sh+'% son intereses</span></div>'; }
     var me=document.getElementById("me-res");
-    if(me){ var M=hnum("me-meta"),pl=Math.round(hnum("me-plazo")),tt=hnum("me-tasa"),rr=tt/100/12,cuota; if(pl<=0){cuota=0;}else if(rr===0){cuota=M/pl;}else{cuota=M*rr/(Math.pow(1+rr,pl)-1);} me.innerHTML='<div class="big">'+money(cuota)+' <span style="font-size:13px;color:var(--muted);font-weight:600">por mes</span></div><div class="brk"><span>Para juntar <b>'+money(M)+'</b> en <b>'+pl+'</b> meses.</span></div>'; }
+    if(me){ var M=hnum("me-meta"),A=hnum("me-ahorrado"),rest=Math.max(0,M-A),pl=Math.round(hnum("me-plazo")),tt=hnum("me-tasa"),rr=tt/100/12,cuota; if(pl<=0||rest===0){cuota=0;}else if(rr===0){cuota=rest/pl;}else{cuota=rest*rr/(Math.pow(1+rr,pl)-1);}
+      me.innerHTML = rest===0 ? '<div class="big">¡Ya llegaste a tu meta! 🎉</div><div class="brk"><span>Tenés <b>'+money(A)+'</b> y la meta es <b>'+money(M)+'</b>.</span></div>'
+        : '<div class="big">'+money(cuota)+' <span style="font-size:13px;color:var(--muted);font-weight:600">por mes</span></div><div class="brk"><span>Te faltan <b>'+money(rest)+'</b> y tenés <b>'+pl+'</b> meses para lograrlo.</span></div>'; }
     var fe=document.getElementById("fe-res");
-    if(fe){ var gm=hnum("fe-gasto"),ms=Math.round(hnum("fe-meses")); fe.innerHTML='<div class="big">'+money(gm*ms)+'</div><div class="brk"><span>Equivale a <b>'+ms+'</b> meses de gastos, listos para un imprevisto.</span></div>'; }
+    if(fe){ var gm=hnum("fe-gasto"),ms=Math.round(hnum("fe-meses")); var fv2=document.getElementById("fe-meses-val"); if(fv2) fv2.textContent=ms;
+      fe.innerHTML='<div class="big">'+money(gm*ms)+'</div><div class="brk"><span>Cubre <b>'+ms+'</b> meses de gastos básicos sin que te quedes sin margen.</span></div><div class="tnote">Si tu ingreso es estable, 3 meses suelen alcanzar. Si sos independiente o tenés personas a cargo, apuntá a 6 o más. Guardalo en una cuenta a la que accedas rápido.</div>'; }
     var pr=document.getElementById("pr-res");
-    if(pr){ var ing=hnum("pr-ingreso"); pr.innerHTML='<div class="brk3"><div class="bk" style="--tc:var(--blue)"><span>50% Necesidades</span><b>'+money(ing*0.5)+'</b></div><div class="bk" style="--tc:var(--amber)"><span>30% Gustos</span><b>'+money(ing*0.3)+'</b></div><div class="bk" style="--tc:var(--accent)"><span>20% Ahorro</span><b>'+money(ing*0.2)+'</b></div></div>'; }
+    if(pr){ var ing=hnum("pr-ingreso"), nec=hnum("pr-nec"), gusEl=document.getElementById("pr-gus"), gus=hnum("pr-gus");
+      if(nec+gus>95){ gus=95-nec; if(gusEl) gusEl.value=gus; } // nunca dejar el ahorro por debajo del 5%
+      var sav=Math.max(0,100-nec-gus); var nv=document.getElementById("pr-nec-val"), gv=document.getElementById("pr-gus-val"); if(nv) nv.textContent=nec; if(gv) gv.textContent=gus;
+      var rows=[{l:"Necesidades",h:"Alquiler, comida, transporte, servicios",p:nec,c:"var(--blue)"},{l:"Gustos",h:"Salidas, suscripciones, ropa, viajes",p:gus,c:"var(--amber)"},{l:"Ahorro e inversión",h:"Tu yo del futuro te lo agradece",p:sav,c:"var(--accent)"}];
+      var fb = sav>=20 ? "Muy bien: estás ahorrando 20% o más. Es una base sólida." : sav>=10 ? "Vas bien. Si podés, intentá llegar de a poco al 20% de ahorro." : "Estás ahorrando muy poco. Probá recortar gustos o revisar gastos fijos.";
+      pr.innerHTML='<div class="tbar" role="img" aria-label="Necesidades '+nec+'%, gustos '+gus+'%, ahorro '+sav+'%">'+rows.map(function(r){ return '<span style="width:'+r.p+'%;background:'+r.c+'"></span>'; }).join("")+'</div><ul class="tlegend">'+rows.map(function(r){ return '<li><span class="dot" style="background:'+r.c+'"></span><span class="lm"><b>'+r.l+' · '+r.p+'%</b><span class="h">'+r.h+'</span></span><span class="amt">'+money(ing*r.p/100)+'</span></li>'; }).join("")+'</ul><div class="tnote" aria-live="polite">'+fb+'</div>'; }
   }
 
   // ===== MERCADO (datos reales embebidos) =====
@@ -1036,5 +1066,18 @@
   renderHomeStrip();
   renderHerramientas();
   var _hc=document.getElementById("herramientasContent"); if(_hc) _hc.addEventListener("input", recomputeHerramientas);
+
+  // Abrir una vista por URL: index.html#herramientas (o #aprender, #mercado...) y también una calculadora puntual
+  // (#tool-meta, #tool-presupuesto...). Lo usa la redirección de herramientas.html y sirve para enlazar desde otras páginas.
+  function showFromHash(){
+    var h=(location.hash||"").replace("#",""); if(!h) return;
+    var toolKey=null; for(var k in TOOLS){ if(TOOLS[k].el===h) toolKey=k; }
+    if(toolKey){ renderHerramientas(); show("herramientas"); setTimeout(function(){ focusTool(h); },80); return; }
+    if(!document.querySelector('section.view[id="'+h+'"]')) return;
+    if(h==="aprender") renderAprender(null); if(h==="mercado") renderMercado(null); if(h==="herramientas") renderHerramientas();
+    show(h);
+  }
+  window.addEventListener("hashchange", showFromHash);
+  showFromHash();
 })();
 </script>

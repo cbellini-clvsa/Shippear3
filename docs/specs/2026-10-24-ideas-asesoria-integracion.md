@@ -104,8 +104,8 @@ interactivas que no tocan base ni login.
 |---|---|---|
 | C — Glosario semilla | ✅ Hecho | `content/glosario.json` (8 términos con enlaces) |
 | D — Roadmap 5 pasos | ✅ Hecho | `content/ruta.json` |
-| A — Calculadoras (compuesto, meta, emergencia) | ✅ Hecho (prototipo) | `docs/mockups/herramientas.html` |
-| B — Presupuesto 50/30/20 | ✅ Hecho (prototipo) | `docs/mockups/herramientas.html` |
+| A — Calculadoras (compuesto, meta, emergencia) | ✅ Hecho (prototipo) | vista **Herramientas** de `docs/mockups/index.html` (`#herramientas`), ordenada por los pasos de La Ruta; `herramientas.html` quedó como redirección |
+| B — Presupuesto 50/30/20 | ✅ Hecho (prototipo) | ídem: tarjeta "Presupuesto" en `index.html#tool-presupuesto` (deslizadores + barra + feedback) |
 | E — Test de perfil | ✅ Hecho (seed + prototipo) | `content/test-perfil.json`, `docs/mockups/test-perfil.html` |
 | F — Plantillas descargables | Pendiente (Batch 2) | — |
 | G — Simulador de deudas | ✅ Hecho (prototipo + módulo Python) | `docs/mockups/simulador-deudas.html`, `docs/mockups/descargas/simulador_deudas.py` |
