@@ -2,16 +2,16 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Construir y dejar publicada (Render + Neon) la app web Django de educación financiera gratuita para Argentina: aprendizaje (temas/módulos/lecciones + quizzes), glosario, datos de mercado reales con gráficos, herramientas (calculadoras) y ruta de 5 pasos, con login opcional con Google para guardar progreso.
+**Goal:** Construir y dejar publicada (Render + Neon) la app web Django de educación financiera gratuita para Argentina: aprendizaje (temas/módulos/lecciones + quizzes), glosario, datos de mercado reales con gráficos, herramientas (calculadoras) y ruta de 5 pasos. **Libre y abierta: sin login ni cuentas** (decisión 2026-10-24); el progreso de cada persona se guarda en su navegador.
 
-**Architecture:** Un proyecto Django único con apps por responsabilidad (`core`, `cuentas`, `educacion`, `glosario`, `quizzes`, `mercado`, `herramientas`). Plantillas server-side + JS liviano (nada de SPA). Datos de mercado traídos de APIs públicas y cacheados en un snapshot en base. Deploy en Render (web) + Neon (PostgreSQL). Desarrollo con SQLite.
+**Architecture:** Un proyecto Django único con apps por responsabilidad (`core`, `educacion`, `glosario`, `quizzes`, `mercado`, `herramientas`). Plantillas server-side + JS liviano (nada de SPA). Datos de mercado traídos de APIs públicas y cacheados en un snapshot en base. Deploy en Render (web) + Neon (PostgreSQL). Desarrollo con SQLite.
 
-**Tech Stack:** Python 3.12, Django 5.1, django-allauth (Google OAuth), requests, dj-database-url, psycopg[binary], gunicorn, whitenoise, Lightweight Charts (TradingView, vía CDN). Tests con pytest-django.
+**Tech Stack:** Python 3.12, Django 5.1, requests, dj-database-url, psycopg[binary], gunicorn, whitenoise, Lightweight Charts (TradingView, vía CDN). Tests con pytest-django.
 
 **Spec:** `docs/specs/2026-10-24-fase1-diseno.md` (leer junto con `docs/specs/2026-10-24-ideas-asesoria-integracion.md`).
 
 **Material de referencia ya existente en el repo (se porta, no se reinventa):**
-- `docs/mockups/index.html` — maqueta funcional completa: markup, CSS (tokens, dark mode), y JS (navegación, quiz, glosario, mercado + gráficos de velas/línea, calculadoras, ruta, login simulado). **Es la fuente de verdad del diseño y del front.**
+- `docs/mockups/index.html` — maqueta funcional completa: markup, CSS (tokens, dark mode), y JS (navegación, quiz, glosario, mercado + gráficos de velas/línea, calculadoras, ruta). **Es la fuente de verdad del diseño y del front.**
 - `content/glosario.json` — 8 términos semilla (categorías + definiciones + ejemplos + relacionados).
 - `content/ruta.json` — 5 pasos de la ruta.
 - `scripts/fetch_mercado_demo.py` — lógica real de fetch + muestreo mensual + agregación de velas OHLC para dólar, indicadores (ArgentinaDatos/datos.gob.ar), acciones y bonos (Yahoo/data912) y crypto (CoinGecko). **Es la fuente de verdad del fetcher de mercado.**
@@ -21,8 +21,8 @@
 - **Lenguaje de la app:** español rioplatense, registro llano ("vos"). Copiar el tono de la maqueta.
 - **Encuadre responsable (spec §2):** todo contenido es educativo/informativo, **no** asesoramiento de inversión personalizado. Las secciones de inversión, el mercado, las calculadoras y (a futuro) cualquier perfil llevan el aviso: *"Contenido educativo. No es asesoramiento de inversión; no reemplaza la consulta con un profesional."* Los datos legales/impositivos (fases futuras) llevan fuente + fecha.
 - **Datos de mercado:** cada valor se muestra con su **fecha/hora de actualización**; ante fallo de una API se muestra el **último valor conocido**, nunca un error crudo.
-- **Privacidad:** sin login no se recolecta nada (progreso en `localStorage`). Con Google solo se guardan nombre/email/foto + progreso. **No** se almacenan contraseñas.
-- **Secretos fuera del repo:** `SECRET_KEY`, credenciales de Google OAuth y URL de la base van por **variables de entorno**. `.env` está en `.gitignore`; existe `.env.example` sin valores reales.
+- **Privacidad:** la app es **libre y sin cuentas** (decisión 2026-10-24): no se recolecta ningún dato personal. El progreso vive en `localStorage` del navegador de cada persona y se puede borrar desde la app. Los únicos usuarios son los del admin de Django (equipo).
+- **Secretos fuera del repo:** `SECRET_KEY` y URL de la base van por **variables de entorno**. `.env` está en `.gitignore`; existe `.env.example` sin valores reales.
 - **Config por entorno:** `DEBUG=True` + SQLite en desarrollo; `DEBUG=False` + PostgreSQL (Neon) en producción, vía `DATABASE_URL`.
 - **Versiones:** fijar Django 5.1.x y Python 3.12. No usar paquetes sin fijar versión.
 - **Commits frecuentes:** un commit por tarea como mínimo (los pasos lo indican).
@@ -46,8 +46,6 @@ finanzas-app/
 │   └── asgi.py
 ├── core/                        # home, páginas estáticas, base template, disclaimer
 │   ├── views.py  urls.py  templates/core/{base,home,acerca,aviso_legal}.html
-├── cuentas/                     # allauth Google + progreso del usuario + "Mis avances"
-│   ├── models.py  views.py  urls.py  admin.py  templates/cuentas/avances.html
 ├── educacion/                   # Tema → Modulo → Leccion
 │   ├── models.py  views.py  urls.py  admin.py  managers.py  templates/educacion/*.html
 ├── glosario/                    # Termino + búsqueda + seed
@@ -61,7 +59,7 @@ finanzas-app/
 ├── herramientas/                # calculadoras (JS cliente) + ruta de 5 pasos
 │   ├── views.py  urls.py  templates/herramientas/{herramientas,ruta}.html
 │   └── management/commands/seed_ruta.py
-├── static/                      # css/app.css, js/*.js (portados de la maqueta)
+├── static/                      # css/app.css, js/*.js (portados de la maqueta; js/progreso.js = progreso en el navegador)
 ├── templates/                   # (si se usa carpeta global; si no, por app)
 ├── content/                     # glosario.json, ruta.json (ya existen)
 ├── docs/
@@ -85,7 +83,6 @@ finanzas-app/
 `requirements.txt`:
 ```
 Django==5.1.6
-django-allauth==65.4.1
 requests==2.32.3
 dj-database-url==2.3.0
 psycopg[binary]==3.2.4
@@ -130,9 +127,7 @@ CSRF_TRUSTED_ORIGINS = [o for o in os.environ.get("CSRF_TRUSTED_ORIGINS", "").sp
 INSTALLED_APPS = [
     "django.contrib.admin", "django.contrib.auth", "django.contrib.contenttypes",
     "django.contrib.sessions", "django.contrib.messages", "django.contrib.staticfiles",
-    "django.contrib.sites",
-    "allauth", "allauth.account", "allauth.socialaccount", "allauth.socialaccount.providers.google",
-    "core", "cuentas", "educacion", "glosario", "quizzes", "mercado", "herramientas",
+    "core", "educacion", "glosario", "quizzes", "mercado", "herramientas",
 ]
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -141,7 +136,6 @@ MIDDLEWARE = [
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
-    "allauth.account.middleware.AccountMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -161,7 +155,7 @@ WSGI_APPLICATION = "config.wsgi.application"
 DATABASES = {"default": dj_database_url.config(
     default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}", conn_max_age=600)}
 
-AUTH_PASSWORD_VALIDATORS = []  # no usamos login con contraseña (solo Google)
+AUTH_PASSWORD_VALIDATORS = []  # no hay login público (app abierta); auth solo para el admin del equipo
 LANGUAGE_CODE = "es-ar"
 TIME_ZONE = "America/Argentina/Buenos_Aires"
 USE_I18N = True
@@ -173,17 +167,6 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STORAGES = {"staticfiles": {"BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage"},
             "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"}}
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
-
-# sites / allauth
-SITE_ID = 1
-AUTHENTICATION_BACKENDS = ["django.contrib.auth.backends.ModelBackend",
-                           "allauth.account.auth_backends.AuthenticationBackend"]
-LOGIN_REDIRECT_URL = "/mis-avances/"
-ACCOUNT_LOGOUT_REDIRECT_URL = "/"
-SOCIALACCOUNT_PROVIDERS = {"google": {
-    "APP": {"client_id": os.environ.get("GOOGLE_CLIENT_ID", ""),
-            "secret": os.environ.get("GOOGLE_CLIENT_SECRET", ""), "key": ""},
-    "SCOPE": ["profile", "email"], "AUTH_PARAMS": {"access_type": "online"}}}
 
 if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
@@ -200,8 +183,6 @@ DEBUG=True
 ALLOWED_HOSTS=localhost,127.0.0.1
 CSRF_TRUSTED_ORIGINS=
 DATABASE_URL=
-GOOGLE_CLIENT_ID=
-GOOGLE_CLIENT_SECRET=
 ```
 
 - [ ] **Step 5: `pytest.ini`**
@@ -234,7 +215,6 @@ from django.contrib import admin
 from django.urls import path, include
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("accounts/", include("allauth.urls")),
     path("", include("core.urls")),
 ]
 ```
@@ -285,7 +265,7 @@ git commit -m "feat: scaffolding Django + settings por entorno + home de humo"
 - Test: `core/tests.py`
 
 **Interfaces:**
-- Produces: `base.html` con `{% block content %}`, header con nav (Inicio, Aprender, Mercado hoy, Herramientas, Glosario, Mis avances), footer con disclaimer, toggle de tema; vistas `core:home`, `core:acerca`, `core:aviso_legal`.
+- Produces: `base.html` con `{% block content %}`, header con nav (Inicio, Aprender, Mercado hoy, Herramientas, Glosario), footer con disclaimer, toggle de tema; vistas `core:home`, `core:acerca`, `core:aviso_legal`.
 
 - [ ] **Step 1: Test de las páginas**
 
@@ -308,7 +288,7 @@ Portar de `docs/mockups/index.html`: el `<style>` completo (tokens de color, dar
 
 - [ ] **Step 4: home real**
 
-`core/home.html` extiende `base.html` y porta el `<section id="inicio">` de la maqueta (hero, chips, tarjeta de progreso/login, tira "Mercado hoy", grilla "Explorá por tema"). Las partes dinámicas (tira de mercado real, grilla de temas) quedan como include vacío/placeholder hasta Task 4/Task 10; de momento, markup estático con texto real.
+`core/home.html` extiende `base.html` y porta el `<section id="inicio">` de la maqueta (hero, chips, tarjeta "Empezá ahora, sin cuenta", tira "Mercado hoy", grilla "Explorá por tema"). Las partes dinámicas (tira de mercado real, grilla de temas) quedan como include vacío/placeholder hasta Task 4/Task 10; de momento, markup estático con texto real.
 
 - [ ] **Step 5: páginas y views**
 
@@ -632,44 +612,53 @@ git commit -m "feat(quizzes): modelos + endpoint de correccion con feedback"
 
 ---
 
-## Task 7: App `cuentas` — login con Google (allauth) y página "Mis avances"
+## Task 7: Progreso en el navegador — `static/js/progreso.js` (sin cuentas)
+
+> No hay app `cuentas`, ni usuarios, ni endpoints de progreso: la app es libre y abierta
+> (decisión 2026-10-24). Todo el progreso vive en `localStorage` del navegador de cada persona.
 
 **Files:**
-- Create: `cuentas/views.py`, `cuentas/urls.py`, `cuentas/templates/cuentas/avances.html`
-- Modify: `config/urls.py`
-- Test: `cuentas/tests.py`
+- Create: `static/js/progreso.js`
+- Modify: `core/templates/core/base.html` (cargar el script), `educacion/templates/educacion/leccion.html` (id de la lección + botón "Marcar como leída"), `quizzes/templates/quizzes/quiz.html` (registrar el puntaje al corregir)
+- Test: `core/tests.py`
 
 **Interfaces:**
-- Consumes: settings de allauth de Task 1.
-- Produces: vista `cuentas:avances` (`/mis-avances/`) que, sin sesión, muestra el estado "logueate con Google" y, con sesión, el panel de avances; botón "Entrar con Google" apunta a `{% provider_login_url 'google' %}`.
+- Consumes: nada del servidor.
+- Produces: objeto global `Progreso` con `leer()`, `marcarLeccion(id)`, `registrarQuiz(id, puntaje)`, `borrar()` y `resumen()` sobre `localStorage`, clave `pc-progreso`, JSON versionado `{v:1, lecciones:{<id>: fecha}, quizzes:{<id>: {puntaje, fecha}}}`. Todo con `try/catch`: si el navegador bloquea el almacenamiento, la app sigue funcionando sin guardar.
 
-- [ ] **Step 1: Test de acceso**
+- [ ] **Step 1: Test de presencia** (el template base carga el script)
 
 ```python
-import pytest
-from django.contrib.auth.models import User
-
 @pytest.mark.django_db
-def test_avances_anon_y_logueado(client):
+def test_progreso_js_presente(client):
     from django.urls import reverse
-    r = client.get(reverse("cuentas:avances"))
-    assert r.status_code == 200
-    assert b"con Google" in r.content           # estado deslogueado
-    u = User.objects.create_user("maria", "maria@gmail.com", "x")
-    client.force_login(u)
-    r2 = client.get(reverse("cuentas:avances"))
-    assert b"Mis avances" in r2.content          # panel logueado
+    html = client.get(reverse("core:home")).content
+    assert b"js/progreso.js" in html
 ```
 
 - [ ] **Step 2: Correr y ver fallar.**
 
-- [ ] **Step 3: Vista + template**
+- [ ] **Step 3: `static/js/progreso.js`**
 
-`cuentas/views.py`: `avances(request)` renderiza `avances.html`; el template usa `{% if user.is_authenticated %}` para alternar entre el estado bloqueado (portar el `#avancesLocked` de la maqueta, con el botón Google real) y el panel (portar `#avancesDash`, con datos reales en Task 8). El botón usa `{% load socialaccount %}{% provider_login_url 'google' %}`.
+```js
+(function(){
+  "use strict";
+  var KEY="pc-progreso", V=1;
+  function vacio(){ return {v:V, lecciones:{}, quizzes:{}}; }
+  function leer(){ try{ var d=JSON.parse(localStorage.getItem(KEY)||"null"); return (d&&d.v===V)?d:vacio(); }catch(e){ return vacio(); } }
+  function guardar(d){ try{ localStorage.setItem(KEY, JSON.stringify(d)); }catch(e){} }
+  window.Progreso={
+    leer:leer,
+    marcarLeccion:function(id){ var d=leer(); d.lecciones[id]=d.lecciones[id]||new Date().toISOString(); guardar(d); },
+    registrarQuiz:function(id,puntaje){ var d=leer(); d.quizzes[id]={puntaje:puntaje, fecha:new Date().toISOString()}; guardar(d); },
+    borrar:function(){ try{ localStorage.removeItem(KEY); }catch(e){} },
+    resumen:function(){ var d=leer(), q=Object.keys(d.quizzes); var prom=q.length?q.reduce(function(a,k){ return a+d.quizzes[k].puntaje; },0)/q.length:0;
+      return {lecciones:Object.keys(d.lecciones).length, quizzes:q.length, promedio:Math.round(prom*100)}; }
+  };
+})();
+```
 
-- [ ] **Step 4: Crear el SocialApp de Google desde settings**
-
-Como el `client_id/secret` vienen por env (settings de Task 1, `SOCIALACCOUNT_PROVIDERS.google.APP`), allauth usa esa app sin fila en el admin. Documentar en `.env.example` que en local se puede dejar vacío (el botón existe pero Google rechaza hasta configurar credenciales de prueba).
+- [ ] **Step 4: Hooks en los templates** — `base.html` incluye `<script src="{% static 'js/progreso.js' %}"></script>` antes de los JS de página. En `leccion.html`, `<article data-leccion-id="{{ leccion.id }}">` y un botón "Marcar como leída" que llama `Progreso.marcarLeccion(id)` (y cambia a "Leída ✓"). En `quiz.html`, al recibir la respuesta de `quizzes:responder`, llamar `Progreso.registrarQuiz(quizId, correctas/total)`.
 
 - [ ] **Step 5: Correr test** → PASS.
 
@@ -677,78 +666,46 @@ Como el `client_id/secret` vienen por env (settings de Task 1, `SOCIALACCOUNT_PR
 
 ```bash
 git add -A
-git commit -m "feat(cuentas): login con Google (allauth) y pagina Mis avances"
+git commit -m "feat: progreso en el navegador (localStorage) sin cuentas"
 ```
 
 ---
 
-## Task 8: App `cuentas` — progreso del usuario (modelos + endpoints + merge de localStorage)
+## Task 8: Estado de progreso en las páginas + "Borrar mi progreso"
 
 **Files:**
-- Create: `cuentas/models.py`, `static/js/progreso.js`
-- Modify: `cuentas/views.py`, `cuentas/urls.py`, `cuentas/admin.py`, `cuentas/templates/cuentas/avances.html`, templates de lección/quiz (marcar completado)
-- Test: `cuentas/tests.py`
+- Modify: `educacion/templates/educacion/{temario,tema}.html` (marcas "leída" / "quiz hecho" por lección y módulo), `core/templates/core/home.html` ("Seguí donde dejaste", opcional), `core/templates/core/aviso_legal.html` (qué se guarda y dónde + botón "Borrar mi progreso")
+- Create: `static/js/progreso-ui.js`
+- Test: `core/tests.py`
 
 **Interfaces:**
-- Produces: modelos `ProgresoLeccion(user, leccion, fecha)`, `IntentoQuiz(user, quiz, puntaje, fecha)`, `Logro(user, tipo, fecha)`; endpoints `cuentas:marcar_leccion` (POST, login req.), `cuentas:registrar_quiz` (POST), `cuentas:merge` (POST, recibe el estado de localStorage al loguearse). `avances` agrega totales (lecciones completadas, temas empezados, promedio de quizzes, logros).
+- Consumes: `Progreso` de Task 7.
+- Produces: el servidor **no sabe quién es nadie**; las marcas de estado se pintan en el cliente leyendo `Progreso.leer()` sobre elementos con `data-leccion-id` / `data-modulo-id`. Un botón "Borrar mi progreso" (`Progreso.borrar()` + recarga) y el texto de privacidad: *"Tu progreso queda en este navegador; no se sincroniza entre dispositivos y se pierde si borrás los datos del sitio."*
 
-- [ ] **Step 1: Test de progreso y agregación**
+- [ ] **Step 1: Test de presencia** (botón y texto en Aviso legal)
 
 ```python
 @pytest.mark.django_db
-def test_marcar_leccion_y_resumen(client, django_user_model):
+def test_borrar_progreso_en_aviso_legal(client):
     from django.urls import reverse
-    from educacion.models import Tema, Modulo, Leccion
-    u = django_user_model.objects.create_user("m","m@gmail.com","x"); client.force_login(u)
-    t = Tema.objects.create(nombre="A", slug="a"); mo = Modulo.objects.create(tema=t, titulo="M", slug="m")
-    le = Leccion.objects.create(modulo=mo, titulo="L", slug="l", contenido="x")
-    assert client.post(reverse("cuentas:marcar_leccion", args=[le.id])).status_code == 200
-    from cuentas.models import ProgresoLeccion
-    assert ProgresoLeccion.objects.filter(user=u, leccion=le).count() == 1
-    # idempotente
-    client.post(reverse("cuentas:marcar_leccion", args=[le.id]))
-    assert ProgresoLeccion.objects.filter(user=u, leccion=le).count() == 1
+    html = client.get(reverse("core:aviso_legal")).content
+    assert b"Borrar mi progreso" in html
+    assert b"en este navegador" in html
 ```
 
 - [ ] **Step 2: Correr y ver fallar.**
 
-- [ ] **Step 3: Modelos (con `unique_together`) + admin.**
+- [ ] **Step 3: `static/js/progreso-ui.js`** — al cargar: recorrer `[data-leccion-id]` y agregar la clase/etiqueta "Leída ✓" si está en `Progreso.leer().lecciones`; para cada `[data-modulo-id]`, mostrar "N de M lecciones" contando sus lecciones hijas; en la home (opcional) mostrar `Progreso.resumen()` en una tarjeta "Seguí donde dejaste" con la última lección marcada. Botón `[data-borrar-progreso]` → `confirm()` → `Progreso.borrar()` → `location.reload()`.
 
-```python
-from django.db import models
-from django.contrib.auth.models import User
-from educacion.models import Leccion
-from quizzes.models import Quiz
-class ProgresoLeccion(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    leccion = models.ForeignKey(Leccion, on_delete=models.CASCADE)
-    fecha = models.DateTimeField(auto_now_add=True)
-    class Meta: unique_together = [("user","leccion")]
-class IntentoQuiz(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
-    puntaje = models.FloatField()
-    fecha = models.DateTimeField(auto_now_add=True)
-class Logro(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    tipo = models.CharField(max_length=60)
-    fecha = models.DateTimeField(auto_now_add=True)
-    class Meta: unique_together = [("user","tipo")]
-```
+- [ ] **Step 4: Templates** — agregar los `data-*` en temario/tema; en `aviso_legal.html`, la sección "Qué guardamos" con el texto de privacidad y el botón "Borrar mi progreso".
 
-- [ ] **Step 4: Endpoints** `marcar_leccion` (login req., `get_or_create`), `registrar_quiz` (guarda puntaje), `merge` (recibe JSON de localStorage y crea los `ProgresoLeccion`/`IntentoQuiz` faltantes). Todos devuelven JSON.
+- [ ] **Step 5: Correr test** → PASS. Verificar a ojo: marcar una lección, recargar, ver "Leída ✓"; borrar y ver que desaparece.
 
-- [ ] **Step 5: `avances` real** — calcular totales (counts + `Avg('puntaje')`), pasar al template, portar el `#avancesDash` de la maqueta con esos valores + "Sincronizado con tu Google · {{ user.email }}".
-
-- [ ] **Step 6: `static/js/progreso.js`** — portar la lógica de localStorage de la maqueta (guardar lección leída / quiz hecho sin sesión). Al cargar una página con usuario logueado, hacer `fetch` a `cuentas:merge` con el contenido de localStorage una sola vez (flag), y limpiar.
-
-- [ ] **Step 7: Migrar + test** → PASS.
-
-- [ ] **Step 8: Commit**
+- [ ] **Step 6: Commit**
 
 ```bash
 git add -A
-git commit -m "feat(cuentas): progreso por usuario, endpoints y merge de localStorage"
+git commit -m "feat: marcas de progreso en paginas y boton Borrar mi progreso"
 ```
 
 ---
@@ -942,7 +899,7 @@ git commit -m "feat: comando seed_educacion con el contenido inicial (portado de
 
 - [ ] **Step 1: Consolidar CSS/JS** — asegurar que `static/css/app.css` tiene todos los tokens + dark mode + estilos de cada sección (de la maqueta), y que cada template referencia los `static/js/*.js` que usa.
 - [ ] **Step 2: Correr toda la suite** — `pytest -v` → todo PASS.
-- [ ] **Step 3: Verificación a ojo** — `runserver`, recorrer Inicio, Aprender (ruta + lección + quiz), Mercado (velas), Herramientas, Glosario, y Mis avances (login simulado local o con credenciales de prueba).
+- [ ] **Step 3: Verificación a ojo** — `runserver`, recorrer Inicio, Aprender (ruta + lección + quiz), Mercado (velas), Herramientas, Glosario, y el progreso en el navegador (marcar una lección, recargar y ver que persiste; "Borrar mi progreso").
 - [ ] **Step 4: Cargar todo el seed** — `seed_glosario`, `seed_educacion`, (`seed_ruta` si aplica).
 - [ ] **Step 5: Commit**
 
@@ -953,7 +910,7 @@ git commit -m "chore: consolidar estilos y pasar la suite completa"
 
 ---
 
-## Task 14: Deploy a producción (GitHub → Render + Neon + Google OAuth)
+## Task 14: Deploy a producción (GitHub → Render + Neon)
 
 **Files:**
 - Create: `render.yaml`, `Procfile`, `build.sh`
@@ -961,7 +918,7 @@ git commit -m "chore: consolidar estilos y pasar la suite completa"
 - Test: `config/tests.py` (smoke de settings de prod)
 
 **Interfaces:**
-- Produces: la app publicada en una URL pública de Render con base PostgreSQL en Neon y login con Google funcionando.
+- Produces: la app publicada en una URL pública de Render con base PostgreSQL en Neon, abierta a cualquiera sin registro.
 
 - [ ] **Step 1: Test de settings de producción**
 
@@ -1014,10 +971,6 @@ services:
         sync: false
       - key: DATABASE_URL
         sync: false
-      - key: GOOGLE_CLIENT_ID
-        sync: false
-      - key: GOOGLE_CLIENT_SECRET
-        sync: false
 ```
 
 - [ ] **Step 4: Subir a GitHub** (pasos manuales del usuario)
@@ -1033,15 +986,13 @@ git push -u origin main
 
 - [ ] **Step 6: Render (manual, en el dashboard de Render)** — New → Web Service → conectar el repo de GitHub → Render detecta `render.yaml`. Cargar las env vars: `ALLOWED_HOSTS=plataclara.onrender.com`, `CSRF_TRUSTED_ORIGINS=https://plataclara.onrender.com`, `DATABASE_URL=<cadena de Neon>`. Deploy.
 
-- [ ] **Step 7: Google OAuth (manual, en Google Cloud Console)** — crear credenciales OAuth 2.0 (tipo Web), **Authorized redirect URI** `https://plataclara.onrender.com/accounts/google/login/callback/`, cargar `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` en Render. (El `Site` de Django debe tener el dominio de Render — set en el admin o por `SITE_ID`/data migration.)
+- [ ] **Step 7: Post-deploy** — correr (o incluir en `build.sh`) los seeds (`seed_glosario`, `seed_educacion`), crear el superusuario del admin (`createsuperuser` vía Render shell; es el único login que existe, para el equipo) y verificar la URL pública: home, mercado (datos reales), una lección marcada como leída que persiste al recargar.
 
-- [ ] **Step 8: Post-deploy** — correr (o incluir en `build.sh`) los seeds (`seed_glosario`, `seed_educacion`), crear superusuario (`createsuperuser` vía Render shell) y verificar la URL pública: home, mercado (datos reales), login con Google.
-
-- [ ] **Step 9: Commit final**
+- [ ] **Step 8: Commit final**
 
 ```bash
 git add -A
-git commit -m "chore: deploy a Render + Neon con Google OAuth"
+git commit -m "chore: deploy a Render + Neon"
 ```
 
 ---
@@ -1051,13 +1002,13 @@ git commit -m "chore: deploy a Render + Neon con Google OAuth"
 - **Educación (temas/módulos/lecciones):** Tasks 3, 4, 12. ✅
 - **Glosario + búsqueda + semilla:** Task 5. ✅
 - **Quizzes + feedback:** Task 6, seed en 12. ✅
-- **Login con Google + progreso + Mis avances:** Tasks 7, 8. ✅
-- **Progreso sin cuenta (localStorage) + merge:** Task 8. ✅
+- **Sin cuentas ni login (app libre y abierta):** Task 1 (sin allauth ni rutas de cuentas). ✅
+- **Progreso en el navegador (localStorage) + "Borrar mi progreso":** Tasks 7, 8. ✅
 - **Mercado agrupado + histórico + velas:** Tasks 9, 10 (porta `fetch_mercado_demo.py`). ✅
 - **Herramientas + Ruta (ideas de asesoría):** Task 11. ✅
 - **Encuadre responsable / disclaimers:** Task 2 (footer + aviso legal), reiterado en mercado/herramientas. ✅
 - **Admin para cargar contenido:** Tasks 3, 5, 6 (admin registrado). ✅
-- **Deploy gratuito (Render + Neon) + OAuth prod:** Task 14. ✅
+- **Deploy gratuito (Render + Neon):** Task 14. ✅
 - **Secretos por env / config por entorno:** Tasks 1, 14. ✅
 
-**Fuera de alcance (fases futuras, NO en este plan):** perfiles laborales ("qué me corresponde"), escáner de deudas (OCR), simulador de deudas, test de perfil de ahorrista, histórico mensual de bonos.
+**Fuera de alcance (fases futuras, NO en este plan):** perfiles laborales ("qué me corresponde"), escáner de deudas (OCR), simulador de deudas, test de perfil de ahorrista, histórico mensual de bonos, y cuentas de usuario o login de cualquier tipo (la app es abierta por decisión del 2026-10-24).
