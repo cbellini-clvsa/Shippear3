@@ -1,0 +1,54 @@
+{
+  "_nota": "Semilla de la 'Ruta' (Batch 1, idea portada del zip). Mapa pedagógico de 5 pasos ordenados. Puede renderizarse como página 'Ruta' o como un Tema de la app `educacion`. Los `icon` son nombres de íconos lucide; cada paso enlaza a sus herramientas en la sección /herramientas.",
+  "version": 1,
+  "id": "ruta-ordena-tu-plata",
+  "title": "Cinco pasos, en este orden",
+  "intro": "El orden importa. Cada paso te prepara para el siguiente, así que no te saltees ninguno aunque la inversión suene más emocionante.",
+  "pasos": [
+    {
+      "order": 1,
+      "slug": "conoce-tus-gastos",
+      "icon": "clipboard-list",
+      "title": "Conocé a dónde se va tu plata",
+      "body": "Anotá todo lo que gastás durante un mes, hasta el cafecito. No se trata de juzgarte: se trata de ver el mapa antes de elegir el camino.",
+      "tip": "Usá una planilla o la app de notas. Lo importante es que sea fácil.",
+      "herramienta": "presupuesto"
+    },
+    {
+      "order": 2,
+      "slug": "fondo-de-emergencia",
+      "icon": "shield-check",
+      "title": "Armá tu fondo de emergencia",
+      "body": "Es un colchón para imprevistos: una reparación, un período sin trabajo, un gasto médico. Evita que una sorpresa te meta en deudas.",
+      "tip": "Meta: entre 3 y 6 meses de tus gastos básicos, en una cuenta de fácil acceso.",
+      "herramienta": "fondo-emergencia"
+    },
+    {
+      "order": 3,
+      "slug": "sali-de-deudas-caras",
+      "icon": "credit-card",
+      "title": "Salí de las deudas caras",
+      "body": "Las tarjetas y los préstamos con tasas altas te cuestan más de lo que cualquier inversión simple te puede rendir. Pagalas primero.",
+      "tip": "Ordená tus deudas por tasa y atacá la más cara; pagá siempre más que el mínimo.",
+      "herramienta": "simulador-deudas"
+    },
+    {
+      "order": 4,
+      "slug": "automatiza-tu-ahorro",
+      "icon": "piggy-bank",
+      "title": "Automatizá tu ahorro",
+      "body": "Si ahorrás lo que sobra, casi nunca sobra. Pagate a vos primero: en cuanto cobres, separá un monto fijo.",
+      "tip": "Empezá con poco, aunque sea 5%, y subilo cada vez que te aumenten.",
+      "herramienta": "meta-ahorro"
+    },
+    {
+      "order": 5,
+      "slug": "empeza-a-invertir",
+      "icon": "trending-up",
+      "title": "Empezá a invertir de a poco",
+      "body": "Con los pasos anteriores resueltos, podés investigar opciones según tu perfil y tu plazo. Diversificar y tener paciencia pesan más que adivinar el mercado.",
+      "tip": "Nunca inviertas dinero que vas a necesitar en el corto plazo ni en algo que no entendés.",
+      "herramienta": "interes-compuesto"
+    }
+  ]
+}

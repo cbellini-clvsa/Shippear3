@@ -1,0 +1,85 @@
+{
+  "_nota": "Semilla del glosario (Batch 1, ideas portadas del zip 'Asesoría financiera para principiantes'). Definiciones en español rioplatense, lenguaje llano. Mapea al modelo `Termino` de la app `glosario` (ver docs/specs/2026-10-24-fase1-diseno.md). Revisar cada definición contra fuente oficial (BCRA/CNV/INDEC) antes de publicar.",
+  "version": 1,
+  "categorias": [
+    { "id": "conceptos", "nombre": "Conceptos base" },
+    { "id": "macro", "nombre": "Macro" },
+    { "id": "ahorro", "nombre": "Ahorro" },
+    { "id": "inversiones", "nombre": "Inversiones" },
+    { "id": "credito", "nombre": "Crédito" }
+  ],
+  "terminos": [
+    {
+      "slug": "inflacion",
+      "termino": "Inflación",
+      "categoria": "macro",
+      "definicion": "Es la suba general de los precios. Con inflación, la misma plata compra cada vez menos, por eso guardar efectivo sin rendimiento hace que pierdas poder de compra.",
+      "ejemplo": "Si un café cuesta $1.000 y al año siguiente $1.500, esos $1.000 guardados en el cajón ya no te alcanzan para el café.",
+      "relacionados": ["interes-compuesto", "liquidez"],
+      "publicado": true
+    },
+    {
+      "slug": "interes-compuesto",
+      "termino": "Interés compuesto",
+      "categoria": "inversiones",
+      "definicion": "Ganar intereses sobre el capital y también sobre los intereses ya acumulados. Con el tiempo, el efecto se acelera.",
+      "ejemplo": "Si ganás 10% anual sobre $100, el primer año sumás $10; el segundo, el 10% se calcula sobre $110, así que sumás $11. Cuanto más tiempo lo dejás, más pesa.",
+      "relacionados": ["inflacion", "riesgo-rendimiento"],
+      "publicado": true
+    },
+    {
+      "slug": "tna-tea",
+      "termino": "Tasa nominal anual (TNA) y efectiva (TEA)",
+      "categoria": "credito",
+      "definicion": "La TNA no incluye la capitalización de intereses; la TEA sí. Para comparar productos, mirá siempre la TEA.",
+      "ejemplo": "Dos plazos fijos con la misma TNA pueden rendir distinto según cada cuánto capitalizan: la TEA lo refleja y los hace comparables.",
+      "relacionados": ["cft", "interes-compuesto"],
+      "publicado": true
+    },
+    {
+      "slug": "liquidez",
+      "termino": "Liquidez",
+      "categoria": "conceptos",
+      "definicion": "Qué tan rápido podés convertir algo en dinero sin perder valor. Una cuenta bancaria es muy líquida; una propiedad, poco.",
+      "ejemplo": "El dinero de tu fondo de emergencia conviene que sea muy líquido: tenés que poder usarlo el mismo día si hace falta.",
+      "relacionados": ["fondo-emergencia", "diversificar"],
+      "publicado": true
+    },
+    {
+      "slug": "diversificar",
+      "termino": "Diversificar",
+      "categoria": "inversiones",
+      "definicion": "Repartir tu dinero en distintos activos para que un mal resultado en uno no arruine todo. “No pongas todos los huevos en la misma canasta”.",
+      "ejemplo": "Si tenés todo en un solo activo y le va mal, perdés mucho; repartido entre varios, un tropiezo pesa menos.",
+      "relacionados": ["riesgo-rendimiento", "liquidez"],
+      "publicado": true
+    },
+    {
+      "slug": "riesgo-rendimiento",
+      "termino": "Riesgo y rendimiento",
+      "categoria": "inversiones",
+      "definicion": "Por lo general, a mayor rendimiento potencial, mayor riesgo de perder. Desconfiá de quien te promete ganancias altas y seguras.",
+      "ejemplo": "Una promesa de “30% por mes garantizado” mezcla rendimiento alto con riesgo bajo: esa combinación casi nunca es real.",
+      "relacionados": ["diversificar", "interes-compuesto"],
+      "publicado": true
+    },
+    {
+      "slug": "fondo-emergencia",
+      "termino": "Fondo de emergencia",
+      "categoria": "ahorro",
+      "definicion": "Dinero reservado y fácil de usar para imprevistos. No es una inversión: su función es protegerte.",
+      "ejemplo": "Suele apuntarse a cubrir entre 3 y 6 meses de tus gastos básicos, en una cuenta a la que accedas rápido.",
+      "relacionados": ["liquidez", "inflacion"],
+      "publicado": true
+    },
+    {
+      "slug": "cft",
+      "termino": "Costo financiero total (CFT)",
+      "categoria": "credito",
+      "definicion": "Lo que realmente pagás por un crédito: intereses, comisiones, seguros e impuestos. Es el número que hay que comparar entre ofertas.",
+      "ejemplo": "Dos préstamos con la misma tasa pueden costarte distinto por los gastos extra; el CFT junta todo en un solo número comparable.",
+      "relacionados": ["tna-tea", "riesgo-rendimiento"],
+      "publicado": true
+    }
+  ]
+}

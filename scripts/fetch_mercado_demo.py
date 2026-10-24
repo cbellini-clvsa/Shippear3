@@ -115,7 +115,7 @@ except Exception as e:
     print("bonos FAIL", e)
 out["grupos"]["Bonos"] = g
 
-# ---------- CRYPTO (CoinGecko) ----------
+# ---------- CRYPTO (CoinGecko: velas OHLC mensuales) ----------
 g = []
 try:
     now = get("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,solana&vs_currencies=usd&include_24hr_change=true")
@@ -123,14 +123,23 @@ except Exception as e:
     now = {}; print("coingecko price FAIL", e)
 for cid, nm, sym in [("bitcoin","Bitcoin","BTC"),("ethereum","Ethereum","ETH"),("solana","Solana","SOL")]:
     try:
-        mc = get("https://api.coingecko.com/api/v3/coins/%s/market_chart?vs_currency=usd&days=365" % cid)
+        oh = get("https://api.coingecko.com/api/v3/coins/%s/ohlc?vs_currency=usd&days=365" % cid)
         bym = {}
-        for ms, p in mc.get("prices", []):
+        for row in oh:
+            ms, o, hi, lo, c = row[0], row[1], row[2], row[3], row[4]
             ym = datetime.fromtimestamp(ms/1000, tz=timezone.utc).strftime("%Y-%m")
-            bym[ym] = round(float(p), 2)
-        h = [{"m": k, "v": v} for k, v in sorted(bym.items())][-12:]
-        val = (now.get(cid, {}) or {}).get("usd") or (h[-1]["v"] if h else None)
-        g.append({"key":cid,"name":nm,"ticker":sym,"val":val,"unit":"USD","hist":h,"src":"CoinGecko"})
+            if ym not in bym:
+                bym[ym] = [o, hi, lo, c]          # primera vela del mes = apertura
+            else:
+                e2 = bym[ym]
+                if hi > e2[1]: e2[1] = hi          # maximo del mes
+                if lo < e2[2]: e2[2] = lo          # minimo del mes
+                e2[3] = c                          # cierre = ultima vela del mes
+        months = sorted(bym.keys())[-12:]
+        candles = [{"t": m+"-01", "o": round(bym[m][0],2), "h": round(bym[m][1],2), "l": round(bym[m][2],2), "c": round(bym[m][3],2)} for m in months]
+        h = [{"m": m, "v": round(bym[m][3],2)} for m in months]
+        val = (now.get(cid, {}) or {}).get("usd") or (candles[-1]["c"] if candles else None)
+        g.append({"key":cid,"name":nm,"ticker":sym,"val":val,"unit":"USD","hist":h,"candles":candles,"src":"CoinGecko (OHLC)"})
         time.sleep(2)
     except Exception as e:
         print("cripto FAIL", cid, e)
