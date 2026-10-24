@@ -1,7 +1,7 @@
 # App de Educación Financiera Pública — Diseño (Fase 1)
 
 - **Fecha:** 2026-10-24
-- **Estado:** Enfoque acotado a educación financiera, con **login con Google**; pendiente go-ahead al plan de implementación.
+- **Estado:** Enfoque acotado a educación financiera. **Decisión 2026-10-24: la app es libre y abierta al público, sin login ni cuentas** (se quitó el login con Google de la maqueta). Las secciones de este documento que describen login/progreso por usuario quedan pendientes de revisión. Pendiente go-ahead al plan de implementación.
 - **Nombre de trabajo:** `finanzas-app` (nombre comercial provisorio en la maqueta: "Plata Clara"; es cosmético y no bloquea nada).
 
 ---

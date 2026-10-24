@@ -1,8 +1,9 @@
 # Educación financiera para todos (hackatón, rama financiera)
 
 Web app de educación financiera para personas sin conocimientos previos, en Argentina.
-El usuario entra con Google, responde un cuestionario de nivel, elige un objetivo y recorre
-módulos con seguimiento de avance.
+La app es **libre y abierta al público: no hay registro ni login** (decisión del 2026-10-24).
+El usuario responde un cuestionario de nivel, elige un objetivo y recorre módulos; el seguimiento
+de avance por usuario queda fuera mientras no haya cuentas.
 
 > Estado: esqueleto inicial. `apps/web` todavía no está inicializada (ver "Primeros pasos").
 
@@ -11,7 +12,7 @@ módulos con seguimiento de avance.
 | Capa | Tecnología | Quién la toca |
 |---|---|---|
 | Frontend + API | Next.js (App Router) + TypeScript + Tailwind + shadcn/ui | A (API), B (UI) |
-| Login | Auth.js con proveedor Google | A |
+| Login | **No hay**: app abierta, sin cuentas (decisión 2026-10-24) | — |
 | Base de datos | Postgres (Neon o Supabase) + Prisma | A |
 | Contenido | Archivos JSON versionados en `content/` | C |
 | Datos macro | Python (pandas) que escribe en la base | C |

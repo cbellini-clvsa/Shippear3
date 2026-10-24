@@ -2,7 +2,7 @@
 <title>Plata Clara</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
 <style>
-  /* Layout: nav fija + vistas conmutables. "Aprender" es dinámico: índice por categoría (renta fija/variable/fondos/macro) y lección por instrumento. Color por tema. Login con Google simulado. */
+  /* Layout: nav fija + vistas conmutables. "Aprender" es dinámico: índice por categoría (renta fija/variable/fondos/macro) y lección por instrumento. Color por tema. Sin login: app libre y abierta. */
   :root{
     --bg:#EFF4F7; --surface:#FFFFFF; --surface-2:#E9F0F4;
     --fg:#12212B; --muted:#5A6B77;
@@ -368,19 +368,17 @@
       <button data-target="mercado">Mercado hoy</button>
       <button data-target="herramientas">Herramientas</button>
       <button data-target="glosario">Glosario</button>
-      <button data-target="avances">Mis avances</button>
     </nav>
     <div class="right">
       <button class="icon-btn" id="themeBtn" title="Cambiar tema" aria-label="Cambiar tema">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
       </button>
-      <div id="authArea" style="position:relative"></div>
     </div>
   </div>
 </header>
 
 <div class="mockbanner">
-  <div class="wrap">Maqueta de diseño · datos de mercado de ejemplo · login con Google simulado (no pide contraseña)</div>
+  <div class="wrap">Maqueta de diseño · datos de mercado de ejemplo · libre y sin registro</div>
 </div>
 
 <!-- ===================== INICIO ===================== -->
@@ -395,14 +393,11 @@
           <p class="lead">Qué es una acción, una cripto, el dólar, un plazo fijo o un fondo común. Renta fija y renta variable, explicadas desde cero. En castellano, para cualquiera.</p>
           <div class="cta-row">
             <button class="btn primary" data-aprender>Empezar a aprender</button>
-            <button class="btn ghost" data-login>
-              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>
-              Entrar con Google
-            </button>
+            <button class="btn ghost" data-goto="herramientas">Ver las herramientas</button>
           </div>
           <div class="chips">
             <span class="chip g">100% gratis</span>
-            <span class="chip">Guardá tus avances con Google</span>
+            <span class="chip">Sin registro ni cuenta</span>
             <span class="chip">Pensado para Argentina 🇦🇷</span>
           </div>
         </div>
@@ -457,27 +452,6 @@
   </div>
 </section>
 
-<!-- ===================== MIS AVANCES ===================== -->
-<section class="view" id="avances" hidden>
-  <div class="wrap">
-    <div id="avancesLocked">
-      <div class="panel lock">
-        <div class="box">
-          <div class="bigic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 15v2M6 10V7a6 6 0 0 1 12 0v3"/><rect x="4" y="10" width="16" height="11" rx="2"/></svg></div>
-          <h2 style="font-size:24px">Guardá y seguí tus avances</h2>
-          <p class="muted">Iniciá sesión con tu cuenta de Google para que tus lecciones completadas, puntajes y logros queden guardados y los veas desde cualquier dispositivo.</p>
-          <button class="gbtn" data-login style="margin-top:4px">
-            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>
-            Continuar con Google
-          </button>
-          <p style="font-size:11.5px;color:var(--muted)">Simulación para la maqueta. No se pide contraseña ni se conecta a Google.</p>
-        </div>
-      </div>
-    </div>
-    <div id="avancesDash" hidden></div>
-  </div>
-</section>
-
 <footer>
   <div class="wrap">
     <div class="disclaimer">⚖️ <b>Contenido educativo.</b> La información de Plata Clara es orientativa y no constituye asesoramiento de inversión ni reemplaza la consulta con un profesional matriculado.</div>
@@ -486,18 +460,12 @@
 </footer>
 
 <script src="https://cdn.jsdelivr.net/npm/lightweight-charts@4.1.3/dist/lightweight-charts.standalone.production.js"></script>
-<script src="https://accounts.google.com/gsi/client" async defer></script>
 <script>
 (function(){
   "use strict";
   var root=document.documentElement;
-  // Login con Google: pegar acá el Client ID (OAuth 2.0, tipo "Aplicación web") creado en Google Cloud Console →
-  // APIs y servicios → Credenciales. Es un identificador PÚBLICO (no es un secreto); lo que lo protege es la lista de
-  // "Orígenes de JavaScript autorizados", donde tienen que estar https://finanzas-app-pi-ruddy.vercel.app y, para probar
-  // en local, http://localhost:8765 y http://127.0.0.1:8765. Vacío → el login queda SIMULADO (selector de la maqueta).
-  var GOOGLE_CLIENT_ID="";
-  var DEMO={name:"María López", email:"maria.lopez@gmail.com", initials:"ML"};
-  var state={ user:null };
+  // La app es libre y abierta: no hay login ni cuentas de usuario (decisión del 2026-10-24).
+  var state={};
 
   function gIcon(s){ return '<svg viewBox="0 0 24 24" width="'+(s||18)+'" height="'+(s||18)+'" aria-hidden="true"><path fill="#4285F4" d="M23.5 12.3c0-.8-.1-1.6-.2-2.3H12v4.5h6.5c-.3 1.5-1.1 2.8-2.4 3.7v3h3.9c2.3-2.1 3.5-5.2 3.5-8.9z"/><path fill="#34A853" d="M12 24c3.2 0 5.9-1.1 7.9-2.9l-3.9-3c-1.1.7-2.5 1.2-4 1.2-3.1 0-5.7-2.1-6.6-4.9H1.4v3.1C3.4 21.3 7.4 24 12 24z"/><path fill="#FBBC05" d="M5.4 14.4c-.2-.7-.4-1.4-.4-2.4s.1-1.6.4-2.4V6.5H1.4C.5 8.2 0 10 0 12s.5 3.8 1.4 5.5l4-3.1z"/><path fill="#EA4335" d="M12 4.8c1.8 0 3.3.6 4.6 1.8l3.4-3.4C17.9 1.2 15.2 0 12 0 7.4 0 3.4 2.7 1.4 6.5l4 3.1C6.3 6.9 8.9 4.8 12 4.8z"/></svg>'; }
   function svg(p){ return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+p+'</svg>'; }
@@ -723,13 +691,11 @@
   function show(id){
     document.querySelectorAll("section.view").forEach(function(v){ v.hidden=(v.id!==id); });
     tabs.querySelectorAll("button").forEach(function(b){ b.setAttribute("aria-current", b.getAttribute("data-target")===id?"true":"false"); });
-    if(id==="avances") renderAvances();
     window.scrollTo({top:0,behavior:"smooth"});
   }
   tabs.addEventListener("click",function(e){ var b=e.target.closest("button[data-target]"); if(!b)return; var t=b.getAttribute("data-target"); if(t==="aprender") renderAprender(null); if(t==="mercado") renderMercado(null); if(t==="herramientas") renderHerramientas(); show(t); });
 
   document.addEventListener("click",function(e){
-    if(e.target.closest("[data-login]")){ openLogin(); return; }
     var lz=e.target.closest("[data-lesson]"); if(lz){ e.preventDefault(); renderAprender(lz.getAttribute("data-lesson")); show("aprender"); return; }
     if(e.target.closest("[data-aprender]")){ e.preventDefault(); renderAprender(null); show("aprender"); return; }
     var term=e.target.closest("[data-term]"); if(term){ e.preventDefault(); show("glosario"); var inp=document.getElementById("glsearch"); if(inp){ inp.value=term.getAttribute("data-term"); renderGloss(inp.value);} return; }
@@ -752,94 +718,10 @@
     fb.innerHTML=(correct?"<b>¡Correcto! ✓</b> ":"<b>Casi.</b> ")+q.fb;
   });
 
-  // ---- Login con Google (Google Identity Services) con fallback simulado ----
-  // Con GOOGLE_CLIENT_ID y este origen autorizado: botón oficial de Google + One Tap, identidad real (nombre, email, foto).
-  // Sin backend: la sesión vive solo en este navegador (localStorage) y el token NO se verifica en un servidor;
-  // alcanza para identificar al usuario y guardar su progreso local, no para proteger datos sensibles.
-  function googleReady(){ return !!(GOOGLE_CLIENT_ID && window.google && google.accounts && google.accounts.id); }
-  var gInit=false;
-  function initGoogle(){
-    if(gInit||!googleReady()) return; gInit=true;
-    google.accounts.id.initialize({client_id:GOOGLE_CLIENT_ID, callback:onGoogleCredential, auto_select:false, cancel_on_tap_outside:true, ux_mode:"popup"});
-  }
-  function parseJwt(t){ try{ var p=t.split(".")[1].replace(/-/g,"+").replace(/_/g,"/"); return JSON.parse(decodeURIComponent(Array.prototype.map.call(atob(p),function(c){ return "%"+("00"+c.charCodeAt(0).toString(16)).slice(-2); }).join(""))); }catch(e){ return null; } }
-  function onGoogleCredential(resp){
-    var c=parseJwt(resp&&resp.credential); if(!c||!c.email) return;
-    var name=c.name||c.email.split("@")[0];
-    var ini=name.split(" ").filter(Boolean).slice(0,2).map(function(s){ return s[0].toUpperCase(); }).join("");
-    var ov=document.querySelector(".overlay"); if(ov) ov.remove();
-    login({name:name, email:c.email, initials:ini, picture:c.picture||"", sub:c.sub, real:true});
-  }
-  function openLogin(){
-    var ov=document.createElement("div"); ov.className="overlay";
-    var real=googleReady();
-    ov.innerHTML='<div class="modal" role="dialog" aria-label="Iniciar sesión con Google"><div class="mh"><span class="glogo">'+gIcon(40)+'</span><h3>'+(real?'Continuá con Google':'Elegí una cuenta')+'</h3><p>para continuar en Plata Clara</p></div>'
-      +(real
-        ? '<div class="accounts" style="display:grid;place-items:center;padding:14px"><div id="gsiBtn"></div></div><div class="mf">🔒 Inicio de sesión con tu cuenta de Google. Guardamos tu nombre y email <b>solo en este navegador</b>; no pedimos contraseña.</div>'
-        : '<div class="accounts"><button class="acc" id="accDemo"><span class="avatar">'+DEMO.initials+'</span><span><span class="nm">'+DEMO.name+'</span><br><span class="em">'+DEMO.email+'</span></span></button><button class="acc other"><span class="avatar">+</span>Usar otra cuenta</button></div><div class="mf">🔒 Inicio de sesión <b>simulado</b> · maqueta de diseño. No se pide contraseña ni se conecta a Google.</div>')
-      +'</div>';
-    ov.addEventListener("click",function(ev){ if(ev.target===ov) ov.remove(); });
-    document.body.appendChild(ov);
-    if(real){
-      initGoogle();
-      google.accounts.id.renderButton(document.getElementById("gsiBtn"),{theme:"outline",size:"large",text:"continue_with",shape:"pill",locale:"es",width:280});
-      google.accounts.id.prompt(); // One Tap, si el navegador lo permite
-    }else{
-      document.getElementById("accDemo").addEventListener("click",function(){ ov.remove(); login(DEMO); });
-    }
-  }
-  function saveSession(u){ try{ if(u) localStorage.setItem("pc-user",JSON.stringify(u)); else localStorage.removeItem("pc-user"); }catch(e){} }
-  function login(u){ state.user=u; saveSession(u); renderAuth(); show("avances"); }
-  function logout(){ state.user=null; saveSession(null); try{ if(window.google&&google.accounts&&google.accounts.id) google.accounts.id.disableAutoSelect(); }catch(e){} renderAuth(); renderHeroCard(); show("inicio"); }
-  function avatarHTML(u){ return u.picture ? '<img class="avatar" src="'+u.picture+'" alt="" referrerpolicy="no-referrer">' : '<span class="avatar">'+u.initials+'</span>'; }
-
-  var authArea=document.getElementById("authArea");
-  function renderAuth(){
-    if(!state.user){
-      authArea.innerHTML='<button class="gbtn" data-login>'+gIcon(18)+'<span>Iniciar sesión</span></button>';
-    }else{
-      authArea.innerHTML='<button class="userchip" id="userChip">'+avatarHTML(state.user)+'<span><span class="nm">'+state.user.name+'</span><br><span class="em">'+state.user.email+'</span></span></button>';
-      document.getElementById("userChip").addEventListener("click",function(e){ e.stopPropagation(); toggleMenu(); });
-    }
-    renderHeroCard();
-  }
-  function toggleMenu(){
-    var ex=document.getElementById("userMenu"); if(ex){ ex.remove(); return; }
-    var m=document.createElement("div"); m.className="menu"; m.id="userMenu";
-    m.innerHTML='<div class="mu-head"><div class="nm">'+state.user.name+'</div><div class="em">'+state.user.email+'</div></div><button data-act="avances">Mis avances</button><button data-act="logout">Cerrar sesión</button>';
-    authArea.appendChild(m);
-    m.addEventListener("click",function(e){ var b=e.target.closest("button"); if(!b)return; if(b.getAttribute("data-act")==="logout") logout(); else show("avances"); m.remove(); });
-    setTimeout(function(){ document.addEventListener("click",function h(ev){ if(!ev.target.closest("#userMenu")&&!ev.target.closest("#userChip")){ var mm=document.getElementById("userMenu"); if(mm)mm.remove(); document.removeEventListener("click",h);} }); },0);
-  }
-
+  // ---- Tarjeta del hero: la app es libre y abierta, sin cuentas ni login ----
   var heroCard=document.getElementById("heroCard");
   function renderHeroCard(){
-    if(!state.user){
-      heroCard.innerHTML='<h3>Empezá en 10 segundos</h3><p class="muted" style="font-size:13.5px;margin-top:6px">Entrá con Google y guardá tu progreso, puntajes y logros. Sin formularios.</p><button class="gbtn" data-login style="margin-top:14px;width:100%;justify-content:center">'+gIcon(18)+'Continuar con Google</button><p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">O explorá sin cuenta desde "Empezar a aprender".</p>';
-    }else{
-      heroCard.innerHTML='<div style="display:flex;gap:14px;align-items:center">'+ring(32)+'<div><h3 style="font-size:16px">¡Hola, '+state.user.name.split(" ")[0]+'!</h3><p class="muted" style="font-size:13px;margin-top:2px">Vas por buen camino.</p></div></div><button class="btn primary" data-goto="avances" style="margin-top:16px;width:100%">Ver mis avances</button>';
-    }
-  }
-
-  function ring(p){
-    var r=46, c=2*Math.PI*r, off=c*(1-p/100);
-    return '<div class="ring"><svg width="112" height="112" viewBox="0 0 112 112"><circle cx="56" cy="56" r="46" fill="none" stroke="var(--surface-2)" stroke-width="10"/><circle cx="56" cy="56" r="46" fill="none" stroke="url(#gr)" stroke-width="10" stroke-linecap="round" stroke-dasharray="'+c.toFixed(1)+'" stroke-dashoffset="'+off.toFixed(1)+'"/><defs><linearGradient id="gr" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#10B981"/><stop offset="1" stop-color="#2563EB"/></linearGradient></defs></svg><div class="lbl">'+p+'%<small>COMPLETADO</small></div></div>';
-  }
-
-  function renderAvances(){
-    var locked=document.getElementById("avancesLocked"), dash=document.getElementById("avancesDash");
-    if(!state.user){ locked.hidden=false; dash.hidden=true; return; }
-    locked.hidden=true; dash.hidden=false;
-    var badges=[
-      {t:"Primeros pasos",s:"Primera lección",c:"#10B981",on:true,ic:'<path d="M5 12l4 4L19 6"/>'},
-      {t:"El dólar, claro",s:"Quiz aprobado",c:"#2563EB",on:true,ic:'<path d="M12 2v20M16 6.5C16 4.6 14 4 12 4S8 4.6 8 7s2 3 4 3.5 4 1.3 4 3.5-2 3-4 3-4-.6-4-2.5"/>'},
-      {t:"Racha de 5 días",s:"5 días seguidos",c:"#D97706",on:true,ic:'<path d="M12 3c1 4-2 5-2 8a4 4 0 0 0 8 0c0-2-1-3-1-5 2 1 3 3 3 6a7 7 0 0 1-14 0c0-4 4-6 6-9z"/>'},
-      {t:"Inversor junior",s:"Completá 5 temas",c:"#7C3AED",on:false,ic:'<path d="M12 2l2.5 6.5L21 9l-5 4 1.5 7L12 16l-5.5 4L8 13 3 9l6.5-.5z"/>'}
-    ];
-    dash.innerHTML='<div class="dashtop">'+ring(32)+'<div class="who"><h2>¡Hola de nuevo, '+state.user.name.split(" ")[0]+'!</h2><span class="sync">'+svg('<path d="M21 12a9 9 0 1 1-3-6.7M21 4v5h-5"/>')+(state.user.real?' Sesión con Google · guardado en este navegador · ':' Sesión simulada · ')+state.user.email+'</span></div></div>'+
-      '<div class="stats"><div class="stat" style="--tc:var(--accent)"><div class="n">7</div><div class="l">Lecciones completadas</div></div><div class="stat" style="--tc:var(--blue)"><div class="n">3</div><div class="l">Temas empezados</div></div><div class="stat" style="--tc:var(--amber)"><div class="n">5</div><div class="l">Días de racha 🔥</div></div><div class="stat" style="--tc:var(--violet)"><div class="n">82%</div><div class="l">Promedio en quizzes</div></div></div>'+
-      '<div class="continue"><div class="meta"><span class="eyebrow">Seguí donde dejaste</span><h3 style="font-size:18px;margin-top:4px">Acciones · ¿De dónde sale la ganancia?</h3><p class="muted" style="font-size:13px;margin-top:4px">Renta variable · módulo 1</p></div><button class="btn primary" data-lesson="acciones">Continuar</button></div>'+
-      '<h3 style="margin-top:26px;font-size:18px">Tus logros</h3><div class="badges">'+badges.map(function(b){ return '<div class="badge'+(b.on?'':' off')+'"><span class="b-ic" style="background:'+b.c+'">'+'<svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">'+b.ic+'</svg></span><span><span class="b-t">'+b.t+'</span><br><span class="b-s">'+b.s+'</span></span></div>'; }).join("")+'</div>';
+    heroCard.innerHTML='<h3>Empezá ahora, sin cuenta</h3><p class="muted" style="font-size:13.5px;margin-top:6px">No hay registro ni contraseñas: todo el contenido y las calculadoras están abiertos para cualquiera.</p><button class="btn primary" data-aprender style="margin-top:14px;width:100%">Empezar a aprender</button><button class="btn ghost" data-goto="herramientas" style="margin-top:8px;width:100%">Ver las herramientas</button><p style="font-size:11px;color:var(--muted);margin-top:8px;text-align:center">Todo se calcula en tu navegador; no guardamos tus datos.</p>';
   }
 
   // ---- Niveles chips (ya no se usan en el índice) ----
@@ -1097,8 +979,8 @@
   });
 
   // init
-  try{ var su=localStorage.getItem("pc-user"); if(su) state.user=JSON.parse(su); }catch(e){} // sesión guardada en este navegador
-  renderAuth();
+  try{ localStorage.removeItem("pc-user"); }catch(e){} // limpia sesiones guardadas por versiones anteriores
+  renderHeroCard();
   renderAprender(null);
   renderMercado(null);
   renderHomeStrip();
