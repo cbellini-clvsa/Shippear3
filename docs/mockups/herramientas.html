@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Herramientas · Plata Clara</title>
+<!--
+  Prototipo de las herramientas (Batch 1, ideas portadas del zip "Asesoría financiera para principiantes").
+  Autocontenido: HTML + JS vanilla, sin frameworks ni dependencias. Todo corre en el navegador.
+  Portabilidad a Django: el <body> se vuelve el template server-side y el <script> pasa a
+  static/js/herramientas.js casi sin cambios (ver docs/specs/2026-10-24-ideas-asesoria-integracion.md).
+  Paleta y tipografías tomadas de docs/mockups/index.html (maqueta "Plata Clara").
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#EFF4F7; --surface:#FFFFFF; --surface-2:#E9F0F4;
+    --fg:#12212B; --muted:#5A6B77;
+    --accent:#0E9F77; --accent-strong:#0A7D5C; --accent-soft:#D9F3EA;
+    --blue:#2563EB; --violet:#7C3AED; --amber:#D97706;
+    --border:#D9E4EB;
+    --pos:#15A34A; --neg:#DC2626;
+    --grad:linear-gradient(135deg,#10B981 0%,#2563EB 55%,#7C3AED 100%);
+    --radius:16px;
+    --font-display:"Bricolage Grotesque", Georgia, serif;
+    --font-body:"IBM Plex Sans", system-ui, sans-serif;
+    --maxw:1040px;
+    --c-needs:var(--blue); --c-wants:var(--amber); --c-save:var(--accent);
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0B1620; --surface:#121F2A; --surface-2:#0F1C26;
+      --fg:#E8EFF4; --muted:#9BABB7;
+      --accent:#2DD4A7; --accent-strong:#5AE0BC; --accent-soft:#123A30;
+      --blue:#5B8CF8; --violet:#A684F5; --amber:#F0A942;
+      --border:#243644;
+      --pos:#3FBE6E; --neg:#F0705E;
+      color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0B1620; --surface:#121F2A; --surface-2:#0F1C26;
+    --fg:#E8EFF4; --muted:#9BABB7;
+    --accent:#2DD4A7; --accent-strong:#5AE0BC; --accent-soft:#123A30;
+    --blue:#5B8CF8; --violet:#A684F5; --amber:#F0A942;
+    --border:#243644;
+    --pos:#3FBE6E; --neg:#F0705E;
+    color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); line-height:1.55; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:var(--font-display); font-weight:700; line-height:1.14; margin:0; text-wrap:balance;}
+  p{margin:0;}
+  .wrap{max-width:var(--maxw); margin-inline:auto; padding:0 18px;}
+  .muted{color:var(--muted);}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--accent-strong);}
+  .tabular{font-variant-numeric:tabular-nums;}
+
+  header.topbar{position:sticky; top:0; z-index:10; background:color-mix(in srgb,var(--surface) 90%, transparent); backdrop-filter:saturate(1.3) blur(10px); border-bottom:1px solid var(--border);}
+  .topbar .wrap{display:flex; align-items:center; gap:14px; padding:11px 18px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:800; font-size:20px; letter-spacing:-.02em;}
+  .brand .logo{width:32px; height:32px; border-radius:10px; background:var(--grad); display:grid; place-items:center; color:#fff; flex:none; box-shadow:0 4px 12px -4px #2563EB66; font-size:17px;}
+  .topbar .right{margin-left:auto;}
+  .icon-btn{border:1px solid var(--border); background:var(--surface); color:var(--fg); height:38px; padding:0 13px; border-radius:10px; cursor:pointer; font-weight:600; font-size:13px; font-family:inherit;}
+  .icon-btn:hover{border-color:var(--accent);}
+
+  .aviso{background:var(--grad); color:#fff;}
+  .aviso .wrap{padding:8px 18px; text-align:center; font-size:12.5px; font-weight:600;}
+
+  .pagehead{padding:34px 0 8px;}
+  .pagehead h1{font-size:clamp(28px,4.5vw,44px); letter-spacing:-.02em;}
+  .pagehead p{font-size:17px; color:var(--muted); margin-top:12px; max-width:60ch;}
+
+  section.tool{padding:22px 0;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:24px; box-shadow:0 18px 40px -30px #0b162055;}
+  @media(min-width:640px){ .card{padding:30px;} }
+  .card > h2{font-size:clamp(21px,3vw,27px);}
+  .card > .sub{color:var(--muted); margin-top:6px; font-size:14px;}
+
+  label{font-size:13px; font-weight:700;}
+  .field{margin-top:8px; display:flex; align-items:center; border:1px solid var(--border); background:var(--bg); border-radius:12px; padding:0 14px;}
+  .field:focus-within{outline:2px solid var(--accent); outline-offset:1px;}
+  .field .pre, .field .suf{color:var(--muted); font-weight:600;}
+  .field input{flex:1; min-width:0; height:46px; border:0; background:transparent; color:inherit; font:inherit; font-weight:700; font-size:17px; padding:0 8px; outline:none;}
+  .grid2{display:grid; gap:16px;}
+  @media(min-width:560px){ .grid2{grid-template-columns:1fr 1fr;} }
+  @media(min-width:900px){ .split{display:grid; grid-template-columns:1fr 1fr; gap:26px; align-items:start;} }
+
+  input[type=range]{width:100%; accent-color:var(--accent); margin-top:10px;}
+  .rangerow{margin-top:4px;}
+
+  .bar{display:flex; height:16px; width:100%; overflow:hidden; border-radius:999px; background:var(--surface-2); margin-top:20px;}
+  .bar > span{transition:width .25s ease;}
+  .legend{list-style:none; padding:0; margin:18px 0 0; display:flex; flex-direction:column; gap:12px;}
+  .legend li{display:flex; align-items:center; gap:12px;}
+  .legend .dot{width:12px; height:12px; border-radius:50%; flex:none;}
+  .legend .li-main{flex:1; min-width:0;}
+  .legend .li-main b{font-size:14px;} .legend .li-main .h{display:block; font-size:12px; color:var(--muted);}
+  .legend .amt{font-family:var(--font-display); font-weight:700; font-size:18px;}
+
+  .result{background:var(--grad); color:#fff; border-radius:18px; padding:22px;}
+  .result .t{font-size:13px; font-weight:600; opacity:.85;}
+  .result .v{font-family:var(--font-display); font-weight:800; font-size:clamp(30px,6vw,46px); margin-top:4px; line-height:1;}
+  .result .n{font-size:14px; opacity:.92; margin-top:12px;}
+
+  .note{margin-top:18px; background:var(--surface-2); border-radius:12px; padding:12px 15px; font-size:14px;}
+  .hint{font-size:13.5px; color:var(--muted); line-height:1.5;}
+
+  .tabs{display:flex; flex-wrap:wrap; gap:8px; margin-top:6px;}
+  .tabs button{border:0; cursor:pointer; font:inherit; font-weight:700; font-size:14px; padding:10px 16px; border-radius:11px; background:var(--surface-2); color:var(--muted);}
+  .tabs button[aria-selected="true"]{background:var(--accent-soft); color:var(--accent-strong);}
+  .panel{margin-top:22px;}
+  .panel[hidden]{display:none;}
+
+  .splitbar{height:12px; border-radius:999px; overflow:hidden; display:flex; background:var(--surface-2); margin-top:16px;}
+  .splitbar .cap{background:var(--blue);} .splitbar .int{background:var(--accent);}
+  .splitlbl{display:flex; justify-content:space-between; font-size:12px; color:var(--muted); margin-top:7px;}
+
+  footer{padding:30px 0 50px; color:var(--muted); font-size:13px;}
+  footer code{background:var(--surface-2); padding:2px 6px; border-radius:6px; font-size:12px;}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="logo">$</span> Plata Clara</div>
+      <div class="right"><button class="icon-btn" id="themeBtn" type="button">Cambiar tema</button></div>
+    </div>
+  </header>
+
+  <div class="aviso"><div class="wrap">Contenido educativo. No es asesoramiento de inversión; no reemplaza la consulta con un profesional.</div></div>
+
+  <main class="wrap">
+    <div class="pagehead">
+      <p class="eyebrow">Herramientas</p>
+      <h1>Poné números a tus metas</h1>
+      <p>Los valores vienen de ejemplo en pesos: cambialos por los tuyos y mirá cómo se mueve el resultado. Todo corre en tu navegador, no pedimos ni guardamos tus datos.</p>
+    </div>
+
+    <!-- ============ PRESUPUESTO 50/30/20 ============ -->
+    <section class="tool" id="presupuesto">
+      <div class="card">
+        <h2>Armá tu presupuesto en 30 segundos</h2>
+        <p class="sub">Probá con la regla 50/30/20 y movela a tu gusto.</p>
+
+        <div class="split" style="margin-top:22px;">
+          <div>
+            <label for="bp-income">¿Cuánto cobrás al mes?</label>
+            <div class="field"><span class="pre">$</span><input id="bp-income" inputmode="numeric" value="600000"></div>
+
+            <div class="grid2" style="margin-top:20px;">
+              <div class="rangerow">
+                <label for="bp-needs">Necesidades: <span id="bp-needs-val">50</span>%</label>
+                <input type="range" id="bp-needs" min="30" max="70" step="5" value="50">
+              </div>
+              <div class="rangerow">
+                <label for="bp-wants">Gustos: <span id="bp-wants-val">30</span>%</label>
+                <input type="range" id="bp-wants" min="5" max="50" step="5" value="30">
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <div class="bar" id="bp-bar" role="img" aria-label="Distribución del presupuesto"></div>
+            <ul class="legend" id="bp-legend"></ul>
+            <p class="note" id="bp-feedback" aria-live="polite"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ============ CALCULADORAS ============ -->
+    <section class="tool" id="calculadoras">
+      <div class="card">
+        <p class="eyebrow">Calculadoras</p>
+        <h2 style="margin-top:4px;">Simuladores rápidos</h2>
+
+        <div class="tabs" role="tablist" aria-label="Calculadoras">
+          <button role="tab" id="tab-compuesto" aria-controls="panel-compuesto" aria-selected="true">Interés compuesto</button>
+          <button role="tab" id="tab-meta" aria-controls="panel-meta" aria-selected="false">Meta de ahorro</button>
+          <button role="tab" id="tab-emergencia" aria-controls="panel-emergencia" aria-selected="false">Fondo de emergencia</button>
+        </div>
+
+        <!-- Interés compuesto -->
+        <div class="panel" id="panel-compuesto" role="tabpanel" aria-labelledby="tab-compuesto">
+          <div class="split">
+            <div>
+              <div class="grid2">
+                <div><label for="ci-initial">Monto inicial</label><div class="field"><span class="pre">$</span><input id="ci-initial" inputmode="decimal" value="100000"></div></div>
+                <div><label for="ci-monthly">Aporte mensual</label><div class="field"><span class="pre">$</span><input id="ci-monthly" inputmode="decimal" value="50000"></div></div>
+                <div><label for="ci-rate">Rendimiento anual</label><div class="field"><input id="ci-rate" inputmode="decimal" value="8"><span class="suf">%</span></div></div>
+                <div><label for="ci-years">Años</label><div class="field"><input id="ci-years" inputmode="decimal" value="10"><span class="suf">años</span></div></div>
+              </div>
+              <p class="hint" style="margin-top:14px;">El interés compuesto es ganar intereses sobre tus intereses. Cuanto más tiempo lo dejás trabajar, más pesa. Es una simulación con tasa constante: la realidad varía.</p>
+            </div>
+            <div>
+              <div class="result" aria-live="polite">
+                <div class="t" id="ci-res-t">En 10 años tendrías</div>
+                <div class="v tabular" id="ci-res-v">—</div>
+                <div class="n" id="ci-res-n"></div>
+              </div>
+              <div class="splitbar" role="img" id="ci-splitbar" aria-label="Composición del total">
+                <span class="cap" id="ci-cap"></span><span class="int" id="ci-int"></span>
+              </div>
+              <div class="splitlbl"><span>Lo que pusiste</span><span id="ci-share">—</span></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Meta de ahorro -->
+        <div class="panel" id="panel-meta" role="tabpanel" aria-labelledby="tab-meta" hidden>
+          <div class="split">
+            <div>
+              <div class="grid2">
+                <div><label for="ma-goal">¿Cuánto querés juntar?</label><div class="field"><span class="pre">$</span><input id="ma-goal" inputmode="decimal" value="1200000"></div></div>
+                <div><label for="ma-saved">Ya tenés ahorrado</label><div class="field"><span class="pre">$</span><input id="ma-saved" inputmode="decimal" value="200000"></div></div>
+                <div><label for="ma-months">En cuántos meses</label><div class="field"><input id="ma-months" inputmode="decimal" value="12"><span class="suf">meses</span></div></div>
+              </div>
+              <p class="hint" style="margin-top:14px;">Un viaje, una compu, un anticipo. Ponerle fecha y monto a una meta la vuelve real. Este cálculo no suma intereses, así que es conservador.</p>
+            </div>
+            <div class="result" aria-live="polite">
+              <div class="t">Tendrías que ahorrar por mes</div>
+              <div class="v tabular" id="ma-res-v">—</div>
+              <div class="n" id="ma-res-n"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fondo de emergencia -->
+        <div class="panel" id="panel-emergencia" role="tabpanel" aria-labelledby="tab-emergencia" hidden>
+          <div class="split">
+            <div>
+              <label for="fe-expenses">Tus gastos básicos mensuales</label>
+              <div class="field"><span class="pre">$</span><input id="fe-expenses" inputmode="decimal" value="400000"></div>
+              <div class="rangerow" style="margin-top:18px;">
+                <label for="fe-coverage">Meses de cobertura: <span id="fe-coverage-val">6</span></label>
+                <input type="range" id="fe-coverage" min="3" max="12" step="1" value="6">
+              </div>
+              <p class="hint" style="margin-top:14px;">Si tu ingreso es estable, 3 meses suelen alcanzar. Si sos independiente o tenés personas a cargo, apuntá a 6 o más. Guardalo en una cuenta a la que accedas rápido.</p>
+            </div>
+            <div class="result" aria-live="polite">
+              <div class="t">Tu fondo de emergencia ideal</div>
+              <div class="v tabular" id="fe-res-v">—</div>
+              <div class="n" id="fe-res-n"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <footer>
+      Prototipo del Batch 1 · ideas portadas del zip de asesoría financiera. Se convierte en template Django:
+      el <code>&lt;body&gt;</code> pasa a la plantilla y el <code>&lt;script&gt;</code> a <code>static/js/herramientas.js</code>.
+    </footer>
+  </main>
+
+<script>
+  "use strict";
+
+  // --- utilidades (puerto de lib/format.ts del zip) ---
+  function toNumber(value){
+    if (typeof value === "number") return isFinite(value) ? value : 0;
+    const n = parseFloat(String(value).replace(/[^\d.,-]/g, "").replace(/\./g, "").replace(",", "."));
+    return isFinite(n) ? n : 0;
+  }
+  const money = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
+  function formatMoney(n){ return money.format(Math.round(isFinite(n) ? n : 0)); }
+
+  const $ = (id) => document.getElementById(id);
+
+  // --- tema claro/oscuro ---
+  (function(){
+    const root = document.documentElement;
+    try { const saved = localStorage.getItem("pc-theme"); if (saved) root.setAttribute("data-theme", saved); } catch (e) {}
+    $("themeBtn").addEventListener("click", function(){
+      const dark = getComputedStyle(root).colorScheme.indexOf("dark") !== -1;
+      const next = dark ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("pc-theme", next); } catch (e) {}
+    });
+  })();
+
+  // --- Presupuesto 50/30/20 ---
+  (function(){
+    const income = $("bp-income"), needs = $("bp-needs"), wants = $("bp-wants");
+    const bar = $("bp-bar"), legend = $("bp-legend"), feedback = $("bp-feedback");
+    function render(){
+      const n = Number(needs.value), w = Number(wants.value);
+      const s = Math.max(0, 100 - n - w);
+      $("bp-needs-val").textContent = n; $("bp-wants-val").textContent = w;
+      const total = toNumber(income.value);
+      const rows = [
+        { label: "Necesidades", hint: "Alquiler, comida, transporte, servicios", percent: n, color: "var(--c-needs)" },
+        { label: "Gustos", hint: "Salidas, suscripciones, ropa, viajes", percent: w, color: "var(--c-wants)" },
+        { label: "Ahorro e inversión", hint: "Tu yo del futuro te lo agradece", percent: s, color: "var(--c-save)" }
+      ];
+      bar.setAttribute("aria-label", "Necesidades " + n + "%, gustos " + w + "%, ahorro " + s + "%");
+      bar.innerHTML = rows.map(r => '<span style="width:' + r.percent + '%;background:' + r.color + '"></span>').join("");
+      legend.innerHTML = rows.map(r =>
+        '<li><span class="dot" style="background:' + r.color + '"></span>' +
+        '<span class="li-main"><b>' + r.label + ' · ' + r.percent + '%</b><span class="h">' + r.hint + '</span></span>' +
+        '<span class="amt tabular">' + formatMoney(total * r.percent / 100) + '</span></li>'
+      ).join("");
+      feedback.textContent = s >= 20
+        ? "Muy bien: estás ahorrando 20% o más. Es una base sólida."
+        : s >= 10
+          ? "Vas bien. Si podés, intentá llegar de a poco al 20% de ahorro."
+          : "Estás ahorrando muy poco. Probá recortar gustos o revisar gastos fijos.";
+    }
+    needs.addEventListener("input", function(){
+      if (Number(needs.value) + Number(wants.value) > 95) wants.value = 95 - Number(needs.value);
+      render();
+    });
+    wants.addEventListener("input", function(){
+      wants.value = Math.min(Number(wants.value), 95 - Number(needs.value));
+      render();
+    });
+    income.addEventListener("input", render);
+    render();
+  })();
+
+  // --- Calculadora: interés compuesto ---
+  (function(){
+    const ids = ["ci-initial", "ci-monthly", "ci-rate", "ci-years"];
+    function render(){
+      const initial = toNumber($("ci-initial").value), monthly = toNumber($("ci-monthly").value);
+      const rate = toNumber($("ci-rate").value), years = toNumber($("ci-years").value);
+      const months = Math.min(Math.max(Math.round(years * 12), 0), 600);
+      const mr = rate / 100 / 12;
+      let balance = initial;
+      for (let i = 0; i < months; i++) balance = balance * (1 + mr) + monthly;
+      const contributed = initial + monthly * months;
+      const gain = Math.max(0, balance - contributed);
+      const gainShare = balance > 0 ? Math.round(gain / balance * 100) : 0;
+      $("ci-res-t").textContent = "En " + (years || 0) + " años tendrías";
+      $("ci-res-v").textContent = formatMoney(balance);
+      $("ci-res-n").textContent = "Aportaste " + formatMoney(contributed) + " y el interés generó " + formatMoney(gain) + ".";
+      $("ci-cap").style.width = (100 - gainShare) + "%";
+      $("ci-int").style.width = gainShare + "%";
+      $("ci-splitbar").setAttribute("aria-label", gainShare + "% del total viene de intereses");
+      $("ci-share").textContent = gainShare + "% son intereses";
+    }
+    ids.forEach(id => $(id).addEventListener("input", render));
+    render();
+  })();
+
+  // --- Calculadora: meta de ahorro ---
+  (function(){
+    function render(){
+      const goal = toNumber($("ma-goal").value), saved = toNumber($("ma-saved").value);
+      const remaining = Math.max(0, goal - saved);
+      const monthCount = Math.max(1, Math.round(toNumber($("ma-months").value)));
+      const perMonth = remaining / monthCount;
+      $("ma-res-v").textContent = formatMoney(perMonth);
+      $("ma-res-n").textContent = remaining === 0
+        ? "¡Ya llegaste a tu meta!"
+        : "Te faltan " + formatMoney(remaining) + " y tenés " + monthCount + " meses para lograrlo.";
+    }
+    ["ma-goal", "ma-saved", "ma-months"].forEach(id => $(id).addEventListener("input", render));
+    render();
+  })();
+
+  // --- Calculadora: fondo de emergencia ---
+  (function(){
+    const exp = $("fe-expenses"), cov = $("fe-coverage");
+    function render(){
+      const c = Number(cov.value);
+      $("fe-coverage-val").textContent = c;
+      $("fe-res-v").textContent = formatMoney(toNumber(exp.value) * c);
+      $("fe-res-n").textContent = "Cubre " + c + " meses de gastos básicos sin que te quedes sin margen.";
+    }
+    exp.addEventListener("input", render); cov.addEventListener("input", render);
+    render();
+  })();
+
+  // --- Tabs de calculadoras ---
+  (function(){
+    const tabs = Array.prototype.slice.call(document.querySelectorAll('[role="tab"]'));
+    tabs.forEach(tab => tab.addEventListener("click", function(){
+      tabs.forEach(t => {
+        const selected = t === tab;
+        t.setAttribute("aria-selected", selected ? "true" : "false");
+        $(t.getAttribute("aria-controls")).hidden = !selected;
+      });
+    }));
+  })();
+</script>
+</body>
+</html>

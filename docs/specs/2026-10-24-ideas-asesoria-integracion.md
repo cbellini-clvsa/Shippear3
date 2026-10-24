@@ -92,3 +92,23 @@ interactivas que no tocan base ni login.
   (`components/calculators.tsx`) y presupuesto 50/30/20 (`components/budget-planner.tsx`).
 - **Simulador de deudas en Python puro** (`python/debt.py`, solo stdlib) — portable casi directo a
   una vista Django o un comando de management.
+
+---
+
+## 7. Estado de implementación
+
+> Enfoque elegido: deliverables **stack-independent** (seeds JSON + prototipos HTML/JS) que se portan
+> sin fricción a Django (o a Next.js). Nada commiteado aún; falta cablearlos al stack real.
+
+| Idea | Estado | Artefacto |
+|---|---|---|
+| C — Glosario semilla | ✅ Hecho | `content/glosario.json` (8 términos con enlaces) |
+| D — Roadmap 5 pasos | ✅ Hecho | `content/ruta.json` |
+| A — Calculadoras (compuesto, meta, emergencia) | ✅ Hecho (prototipo) | `docs/mockups/herramientas.html` |
+| B — Presupuesto 50/30/20 | ✅ Hecho (prototipo) | `docs/mockups/herramientas.html` |
+| E — Test de perfil | ✅ Hecho (seed + prototipo) | `content/test-perfil.json`, `docs/mockups/test-perfil.html` |
+| F — Plantillas descargables | Pendiente (Batch 2) | — |
+| G — Simulador de deudas | ✅ Hecho (prototipo + módulo Python) | `docs/mockups/simulador-deudas.html`, `docs/mockups/descargas/simulador_deudas.py` |
+
+**Próximo paso de arquitectura:** scaffold Django (o confirmar stack) para convertir los prototipos en
+páginas reales (`<body>` → template, `<script>` → `static/js/`) y cargar los seeds en los modelos.

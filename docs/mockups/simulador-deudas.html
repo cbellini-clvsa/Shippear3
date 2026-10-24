@@ -1,0 +1,332 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Simulador de deudas · Plata Clara</title>
+<!--
+  Prototipo del simulador de deudas (Batch 3, idea portada del zip).
+  Autocontenido: HTML + JS vanilla. La lógica es el puerto de lib/debt.ts; el mismo algoritmo
+  está en Python puro en descargas/simulador_deudas.py (botón de descarga + futuro backend Django).
+  Encuadre: es una SIMULACIÓN educativa con tasa constante; no es asesoramiento financiero.
+  Paleta y tipografías de docs/mockups/index.html (maqueta "Plata Clara").
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#EFF4F7; --surface:#FFFFFF; --surface-2:#E9F0F4;
+    --fg:#12212B; --muted:#5A6B77;
+    --accent:#0E9F77; --accent-strong:#0A7D5C; --accent-soft:#D9F3EA;
+    --blue:#2563EB; --violet:#7C3AED; --amber:#D97706;
+    --border:#D9E4EB; --pos:#15A34A; --neg:#DC2626;
+    --grad:linear-gradient(135deg,#10B981 0%,#2563EB 55%,#7C3AED 100%);
+    --radius:16px;
+    --font-display:"Bricolage Grotesque", Georgia, serif;
+    --font-body:"IBM Plex Sans", system-ui, sans-serif;
+    --maxw:1040px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0B1620; --surface:#121F2A; --surface-2:#0F1C26;
+      --fg:#E8EFF4; --muted:#9BABB7;
+      --accent:#2DD4A7; --accent-strong:#5AE0BC; --accent-soft:#123A30;
+      --blue:#5B8CF8; --violet:#A684F5; --amber:#F0A942;
+      --border:#243644; --pos:#3FBE6E; --neg:#F0705E; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0B1620; --surface:#121F2A; --surface-2:#0F1C26;
+    --fg:#E8EFF4; --muted:#9BABB7;
+    --accent:#2DD4A7; --accent-strong:#5AE0BC; --accent-soft:#123A30;
+    --blue:#5B8CF8; --violet:#A684F5; --amber:#F0A942;
+    --border:#243644; --pos:#3FBE6E; --neg:#F0705E; color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); line-height:1.55; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:var(--font-display); font-weight:700; line-height:1.14; margin:0; text-wrap:balance;}
+  p{margin:0;}
+  .wrap{max-width:var(--maxw); margin-inline:auto; padding:0 18px;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--accent-strong);}
+  .tabular{font-variant-numeric:tabular-nums;}
+
+  header.topbar{position:sticky; top:0; z-index:10; background:color-mix(in srgb,var(--surface) 90%, transparent); backdrop-filter:saturate(1.3) blur(10px); border-bottom:1px solid var(--border);}
+  .topbar .wrap{display:flex; align-items:center; gap:14px; padding:11px 18px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:800; font-size:20px; letter-spacing:-.02em;}
+  .brand .logo{width:32px; height:32px; border-radius:10px; background:var(--grad); display:grid; place-items:center; color:#fff; flex:none; font-size:17px; box-shadow:0 4px 12px -4px #2563EB66;}
+  .topbar .right{margin-left:auto;}
+  .icon-btn{border:1px solid var(--border); background:var(--surface); color:var(--fg); height:38px; padding:0 13px; border-radius:10px; cursor:pointer; font-weight:600; font-size:13px; font-family:inherit;}
+  .icon-btn:hover{border-color:var(--accent);}
+
+  .aviso{background:var(--grad); color:#fff;}
+  .aviso .wrap{padding:8px 18px; text-align:center; font-size:12.5px; font-weight:600;}
+
+  .pagehead{padding:34px 0 8px;}
+  .pagehead h1{font-size:clamp(28px,4.5vw,44px); letter-spacing:-.02em;}
+  .pagehead p{font-size:17px; color:var(--muted); margin-top:12px; max-width:62ch;}
+
+  .layout{display:grid; gap:22px; padding:22px 0 60px;}
+  @media(min-width:900px){ .layout{grid-template-columns:1.15fr .85fr; align-items:start;} }
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:22px; padding:22px; box-shadow:0 18px 40px -30px #0b162055;}
+  @media(min-width:640px){ .card{padding:26px;} }
+  .card h2{font-size:21px;}
+
+  .debts-head, .debt{display:grid; grid-template-columns:1.4fr 1fr .8fr 1fr 34px; gap:8px; align-items:center;}
+  .debts-head{margin:18px 0 8px; font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; color:var(--muted);}
+  .debt{margin-bottom:8px;}
+  .in{width:100%; min-width:0; height:42px; border:1px solid var(--border); background:var(--bg); color:inherit; font:inherit; font-weight:600; font-size:14px; border-radius:10px; padding:0 10px; outline:none;}
+  .in:focus{outline:2px solid var(--accent); outline-offset:1px;}
+  .in.num{text-align:right; font-variant-numeric:tabular-nums;}
+  .rm{height:34px; width:34px; border:1px solid var(--border); background:var(--surface); color:var(--neg); border-radius:9px; cursor:pointer; font-size:18px; line-height:1; font-family:inherit;}
+  .rm:hover{border-color:var(--neg);}
+  .addbtn{margin-top:4px; border:1px dashed var(--border); background:transparent; color:var(--accent-strong); border-radius:11px; padding:11px; width:100%; font:inherit; font-weight:700; font-size:14px; cursor:pointer;}
+  .addbtn:hover{border-color:var(--accent); background:var(--accent-soft);}
+
+  .controls{display:grid; gap:16px; margin-top:20px; padding-top:18px; border-top:1px solid var(--border);}
+  @media(min-width:560px){ .controls{grid-template-columns:1fr 1fr; align-items:end;} }
+  label{font-size:13px; font-weight:700;}
+  .field{margin-top:8px; display:flex; align-items:center; border:1px solid var(--border); background:var(--bg); border-radius:11px; padding:0 12px;}
+  .field:focus-within{outline:2px solid var(--accent); outline-offset:1px;}
+  .field .pre{color:var(--muted); font-weight:600;}
+  .field input{flex:1; min-width:0; height:44px; border:0; background:transparent; color:inherit; font:inherit; font-weight:700; font-size:16px; padding:0 8px; outline:none;}
+  .toggle{display:flex; gap:6px; background:var(--surface-2); padding:5px; border-radius:12px;}
+  .toggle button{flex:1; border:0; cursor:pointer; font:inherit; font-weight:700; font-size:13.5px; padding:10px 8px; border-radius:9px; background:transparent; color:var(--muted);}
+  .toggle button[aria-pressed="true"]{background:var(--surface); color:var(--accent-strong); box-shadow:0 2px 8px -4px #0b162055;}
+
+  .hint{font-size:13px; color:var(--muted); line-height:1.5; margin-top:14px;}
+  .dl{margin-top:14px; display:inline-flex; align-items:center; gap:8px; border:1px solid var(--border); background:var(--surface); color:var(--fg); border-radius:11px; padding:10px 14px; font-size:13.5px; font-weight:700; text-decoration:none;}
+  .dl:hover{border-color:var(--accent);}
+
+  .result{background:var(--grad); color:#fff; border-radius:18px; padding:22px;}
+  .result .t{font-size:13px; font-weight:600; opacity:.85;}
+  .result .v{font-family:var(--font-display); font-weight:800; font-size:clamp(28px,5.5vw,40px); margin-top:4px; line-height:1.05;}
+  .stats{display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-top:16px;}
+  .stat{background:var(--surface-2); border-radius:12px; padding:13px 15px;}
+  .stat .k{font-size:12px; color:var(--muted); font-weight:600;}
+  .stat .n{font-family:var(--font-display); font-weight:700; font-size:19px; margin-top:3px;}
+  .compare{margin-top:16px; background:var(--accent-soft); color:var(--accent-strong); border-radius:12px; padding:13px 15px; font-size:14px; font-weight:600; line-height:1.45;}
+  .warn{margin-top:14px; background:color-mix(in srgb,var(--neg) 14%, var(--surface)); color:var(--neg); border-radius:12px; padding:12px 15px; font-size:13.5px; font-weight:600;}
+  .orderlab{font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-top:20px;}
+  .order{list-style:none; padding:0; margin:10px 0 0; display:flex; flex-direction:column; gap:8px;}
+  .order li{display:flex; align-items:center; justify-content:space-between; gap:10px; background:var(--surface-2); border-radius:11px; padding:11px 14px; font-size:14px;}
+  .order li b{font-weight:700;} .order li .mo{color:var(--muted); font-size:13px; font-variant-numeric:tabular-nums;}
+  .empty{color:var(--muted); font-size:14px; margin-top:16px;}
+
+  footer{padding:0 0 50px; color:var(--muted); font-size:13px;}
+  footer code{background:var(--surface-2); padding:2px 6px; border-radius:6px; font-size:12px;}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="logo">$</span> Plata Clara</div>
+      <div class="right"><button class="icon-btn" id="themeBtn" type="button">Cambiar tema</button></div>
+    </div>
+  </header>
+
+  <div class="aviso"><div class="wrap">Simulación educativa con tasa constante. No es asesoramiento de inversión; la realidad varía.</div></div>
+
+  <main class="wrap">
+    <div class="pagehead">
+      <p class="eyebrow">Herramientas</p>
+      <h1>Salí de deudas: avalancha vs. bola de nieve</h1>
+      <p>Cargá tus deudas y un pago extra por mes. Te muestra en cuánto tiempo las saldás, cuánto pagás de intereses y en qué orden conviene cancelarlas. Todo corre en tu navegador.</p>
+    </div>
+
+    <div class="layout">
+      <!-- Entrada -->
+      <div class="card">
+        <h2>Tus deudas</h2>
+        <div class="debts-head">
+          <span>Nombre</span><span>Saldo</span><span>Tasa anual</span><span>Pago mínimo</span><span></span>
+        </div>
+        <div id="debts"></div>
+        <button class="addbtn" id="addBtn" type="button">+ Agregar deuda</button>
+
+        <div class="controls">
+          <div>
+            <label for="extra">Pago extra por mes</label>
+            <div class="field"><span class="pre">$</span><input id="extra" inputmode="numeric" value="50000"></div>
+          </div>
+          <div>
+            <label id="method-label">Método</label>
+            <div class="toggle" role="group" aria-labelledby="method-label">
+              <button type="button" data-method="avalanche" aria-pressed="true">Avalancha</button>
+              <button type="button" data-method="snowball" aria-pressed="false">Bola de nieve</button>
+            </div>
+          </div>
+        </div>
+
+        <p class="hint"><b>Avalancha:</b> el extra ataca primero la deuda de <b>mayor tasa</b> (pagás menos intereses). <b>Bola de nieve:</b> ataca la de <b>menor saldo</b> (cancelás deudas más rápido y te motiva). En ambos casos, cuando una se salda, su pago “rueda” a las demás.</p>
+
+        <a class="dl" href="descargas/simulador_deudas.py" download="simulador_deudas.py">⬇ Descargar simulador en Python (.py)</a>
+      </div>
+
+      <!-- Resultado -->
+      <div class="card" aria-live="polite">
+        <div id="result"></div>
+      </div>
+    </div>
+
+    <footer>
+      Prototipo del Batch 3 · lógica portada de <code>lib/debt.ts</code> del zip. Mismo algoritmo en
+      <code>descargas/simulador_deudas.py</code>. Se vuelve página Django: <code>&lt;body&gt;</code> → template, <code>&lt;script&gt;</code> → <code>static/js/</code>.
+    </footer>
+  </main>
+
+<script>
+  "use strict";
+
+  function toNumber(value){
+    if (typeof value === "number") return isFinite(value) ? value : 0;
+    const n = parseFloat(String(value).replace(/[^\d.,-]/g, "").replace(/\./g, "").replace(",", "."));
+    return isFinite(n) ? n : 0;
+  }
+  const money = new Intl.NumberFormat("es-AR", { style: "currency", currency: "ARS", maximumFractionDigits: 0 });
+  const formatMoney = (n) => money.format(Math.round(isFinite(n) ? n : 0));
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+  // --- lógica: puerto de lib/debt.ts ---
+  const MAX_MONTHS = 600;
+  function simulateDebts(debts, extra, method){
+    const active = debts.filter(d => d.balance > 0).map(d => ({ ...d }));
+    const monthlyBudget = active.reduce((s, d) => s + d.minPayment, 0) + Math.max(0, extra);
+    const payoffs = []; let totalInterest = 0, totalPaid = 0, month = 0;
+    if (active.length === 0) return { months: 0, totalInterest: 0, totalPaid: 0, payoffs, completed: true };
+
+    while (active.some(d => d.balance > 0.5) && month < MAX_MONTHS){
+      month += 1; let budget = monthlyBudget;
+      for (const d of active){ if (d.balance <= 0) continue; const i = d.balance * (d.annualRate / 100 / 12); d.balance += i; totalInterest += i; }
+      for (const d of active){ if (d.balance <= 0) continue; const p = Math.min(d.balance, d.minPayment, budget); d.balance -= p; budget -= p; totalPaid += p; }
+      const targets = active.filter(d => d.balance > 0.5).sort((a, b) => method === "avalanche" ? b.annualRate - a.annualRate : a.balance - b.balance);
+      for (const d of targets){ if (budget <= 0) break; const p = Math.min(d.balance, budget); d.balance -= p; budget -= p; totalPaid += p; }
+      for (const d of active){ if (d.balance <= 0.5 && !payoffs.some(p => p.id === d.id)){ d.balance = 0; payoffs.push({ id: d.id, name: d.name, month }); } }
+    }
+    return { months: month, totalInterest, totalPaid, payoffs, completed: month < MAX_MONTHS };
+  }
+  function formatMonths(m){
+    if (m <= 0) return "0 meses";
+    const y = Math.floor(m / 12), r = m % 12, parts = [];
+    if (y > 0) parts.push(y + (y === 1 ? " año" : " años"));
+    if (r > 0) parts.push(r + (r === 1 ? " mes" : " meses"));
+    return parts.join(" y ");
+  }
+
+  // --- tema ---
+  (function(){
+    const root = document.documentElement;
+    try { const s = localStorage.getItem("pc-theme"); if (s) root.setAttribute("data-theme", s); } catch (e) {}
+    $("themeBtn").addEventListener("click", function(){
+      const dark = getComputedStyle(root).colorScheme.indexOf("dark") !== -1;
+      const next = dark ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("pc-theme", next); } catch (e) {}
+    });
+  })();
+
+  // --- deudas (filas en el DOM; se leen al calcular para no perder foco al tipear) ---
+  const DEFAULTS = [
+    { name: "Tarjeta de crédito", balance: "450000", rate: "120", min: "45000" },
+    { name: "Préstamo personal", balance: "800000", rate: "75", min: "60000" },
+    { name: "Cuotas del celular", balance: "150000", rate: "0", min: "25000" }
+  ];
+  let seq = 0;
+  const debtsBox = $("debts");
+
+  function addRow(d){
+    d = d || { name: "", balance: "", rate: "", min: "" };
+    const id = "d" + (++seq);
+    const row = document.createElement("div");
+    row.className = "debt"; row.dataset.id = id;
+    row.innerHTML =
+      '<input class="in f-name" type="text" placeholder="Nombre" value="' + esc(d.name) + '" aria-label="Nombre de la deuda">' +
+      '<input class="in num f-balance" inputmode="numeric" placeholder="0" value="' + esc(d.balance) + '" aria-label="Saldo">' +
+      '<input class="in num f-rate" inputmode="decimal" placeholder="0%" value="' + esc(d.rate) + '" aria-label="Tasa anual %">' +
+      '<input class="in num f-min" inputmode="numeric" placeholder="0" value="' + esc(d.min) + '" aria-label="Pago mínimo mensual">' +
+      '<button class="rm" type="button" title="Quitar" aria-label="Quitar deuda">×</button>';
+    debtsBox.appendChild(row);
+  }
+
+  function readDebts(){
+    return Array.prototype.map.call(debtsBox.querySelectorAll(".debt"), function(row){
+      return {
+        id: row.dataset.id,
+        name: row.querySelector(".f-name").value.trim() || "Deuda",
+        balance: toNumber(row.querySelector(".f-balance").value),
+        annualRate: toNumber(row.querySelector(".f-rate").value),
+        minPayment: toNumber(row.querySelector(".f-min").value)
+      };
+    });
+  }
+
+  let method = "avalanche";
+
+  function compute(){
+    const debts = readDebts();
+    const extra = toNumber($("extra").value);
+    const box = $("result");
+
+    if (debts.filter(d => d.balance > 0).length === 0){
+      box.innerHTML = '<p class="empty">Cargá al menos una deuda con saldo para ver el plan.</p>';
+      return;
+    }
+
+    const sim = simulateDebts(debts, extra, method);
+    const ava = simulateDebts(debts, extra, "avalanche");
+    const snow = simulateDebts(debts, extra, "snowball");
+    const diff = Math.round(snow.totalInterest - ava.totalInterest); // >0: avalancha ahorra
+
+    let compareMsg;
+    if (!ava.completed || !snow.completed){
+      compareMsg = "Con este pago, el plan no llega a saldar todo en 50 años. Subí el pago extra o el mínimo de alguna deuda.";
+    } else if (Math.abs(diff) < 1000){
+      compareMsg = "Las dos estrategias dan casi lo mismo en este caso. Elegí la que te resulte más fácil de sostener.";
+    } else if (diff > 0){
+      compareMsg = "La avalancha te ahorra " + formatMoney(diff) + " en intereses frente a la bola de nieve.";
+    } else {
+      compareMsg = "Acá la bola de nieve sale " + formatMoney(-diff) + " más barata en intereses, además de cancelar deudas antes.";
+    }
+
+    box.innerHTML =
+      '<div class="result">' +
+        '<div class="t">Con el método ' + (method === "avalanche" ? "avalancha" : "bola de nieve") + ', saldás todo en</div>' +
+        '<div class="v tabular">' + formatMonths(sim.months) + '</div>' +
+        '<div class="stats">' +
+          '<div class="stat"><div class="k">Intereses totales</div><div class="n tabular">' + formatMoney(sim.totalInterest) + '</div></div>' +
+          '<div class="stat"><div class="k">Total pagado</div><div class="n tabular">' + formatMoney(sim.totalPaid) + '</div></div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="compare">' + compareMsg + '</div>' +
+      (!sim.completed ? '<div class="warn">Con este pago no se llega a saldar todo en 50 años; los números de arriba son el tope de la simulación.</div>' : "") +
+      '<p class="orderlab">Orden de cancelación</p>' +
+      '<ul class="order">' +
+        (sim.payoffs.length
+          ? sim.payoffs.map(p => '<li><b>' + esc(p.name) + '</b><span class="mo">mes ' + p.month + ' · ' + formatMonths(p.month) + '</span></li>').join("")
+          : '<li><span class="mo">Todavía no se cancela ninguna dentro del tope.</span></li>') +
+      '</ul>';
+  }
+
+  // init
+  DEFAULTS.forEach(addRow);
+  $("addBtn").addEventListener("click", function(){ addRow(); compute(); });
+  debtsBox.addEventListener("input", compute);
+  debtsBox.addEventListener("click", function(e){
+    const btn = e.target.closest(".rm");
+    if (!btn) return;
+    const row = btn.closest(".debt");
+    if (row) row.remove();
+    compute();
+  });
+  $("extra").addEventListener("input", compute);
+  Array.prototype.forEach.call(document.querySelectorAll(".toggle button"), function(btn){
+    btn.addEventListener("click", function(){
+      method = btn.dataset.method;
+      document.querySelectorAll(".toggle button").forEach(b => b.setAttribute("aria-pressed", b === btn ? "true" : "false"));
+      compute();
+    });
+  });
+  compute();
+</script>
+</body>
+</html>

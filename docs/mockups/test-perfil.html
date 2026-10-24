@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Test de perfil · Plata Clara</title>
+<!--
+  Prototipo del test de perfil de ahorrista (Batch 2, idea portada del zip).
+  Autocontenido: HTML + JS vanilla. El contenido de abajo (const DATA) es una copia del
+  canónico content/test-perfil.json; en la app Django se lee del JSON/modelo, no se duplica.
+  Portabilidad: el <body> se vuelve template Django y el <script> pasa a static/js/.
+  Paleta y tipografías de docs/mockups/index.html (maqueta "Plata Clara").
+-->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+  :root{
+    --bg:#EFF4F7; --surface:#FFFFFF; --surface-2:#E9F0F4;
+    --fg:#12212B; --muted:#5A6B77;
+    --accent:#0E9F77; --accent-strong:#0A7D5C; --accent-soft:#D9F3EA;
+    --blue:#2563EB; --violet:#7C3AED;
+    --border:#D9E4EB;
+    --grad:linear-gradient(135deg,#10B981 0%,#2563EB 55%,#7C3AED 100%);
+    --radius:16px;
+    --font-display:"Bricolage Grotesque", Georgia, serif;
+    --font-body:"IBM Plex Sans", system-ui, sans-serif;
+    --maxw:960px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0B1620; --surface:#121F2A; --surface-2:#0F1C26;
+      --fg:#E8EFF4; --muted:#9BABB7;
+      --accent:#2DD4A7; --accent-strong:#5AE0BC; --accent-soft:#123A30;
+      --blue:#5B8CF8; --violet:#A684F5;
+      --border:#243644; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0B1620; --surface:#121F2A; --surface-2:#0F1C26;
+    --fg:#E8EFF4; --muted:#9BABB7;
+    --accent:#2DD4A7; --accent-strong:#5AE0BC; --accent-soft:#123A30;
+    --blue:#5B8CF8; --violet:#A684F5;
+    --border:#243644; color-scheme:dark;
+  }
+
+  *{box-sizing:border-box}
+  body{margin:0; background:var(--bg); color:var(--fg); font-family:var(--font-body); line-height:1.55; -webkit-font-smoothing:antialiased;}
+  h1,h2,h3{font-family:var(--font-display); font-weight:700; line-height:1.14; margin:0; text-wrap:balance;}
+  p{margin:0;}
+  .wrap{max-width:var(--maxw); margin-inline:auto; padding:0 18px;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; color:var(--accent-strong);}
+
+  header.topbar{position:sticky; top:0; z-index:10; background:color-mix(in srgb,var(--surface) 90%, transparent); backdrop-filter:saturate(1.3) blur(10px); border-bottom:1px solid var(--border);}
+  .topbar .wrap{display:flex; align-items:center; gap:14px; padding:11px 18px;}
+  .brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:800; font-size:20px; letter-spacing:-.02em;}
+  .brand .logo{width:32px; height:32px; border-radius:10px; background:var(--grad); display:grid; place-items:center; color:#fff; flex:none; font-size:17px; box-shadow:0 4px 12px -4px #2563EB66;}
+  .topbar .right{margin-left:auto;}
+  .icon-btn{border:1px solid var(--border); background:var(--surface); color:var(--fg); height:38px; padding:0 13px; border-radius:10px; cursor:pointer; font-weight:600; font-size:13px; font-family:inherit;}
+  .icon-btn:hover{border-color:var(--accent);}
+
+  .hero{background:var(--grad); color:#fff;}
+  .hero .wrap{padding:40px 18px;}
+  .hero .eyebrow{color:#D9F3EA;}
+  .hero h1{font-size:clamp(28px,5vw,46px); letter-spacing:-.02em; margin-top:8px;}
+  .hero p{font-size:17px; opacity:.93; margin-top:14px; max-width:60ch;}
+  .hero .aviso{margin-top:18px; font-size:12.5px; font-weight:600; opacity:.9; display:flex; gap:8px; align-items:flex-start;}
+
+  main{padding:28px 0 60px;}
+  .card{background:var(--surface); border:1px solid var(--border); border-radius:24px; padding:26px; box-shadow:0 18px 40px -30px #0b162055;}
+  @media(min-width:640px){ .card{padding:34px;} }
+
+  .meta{font-size:13px; font-weight:700; color:var(--muted);}
+  .progress{height:8px; border-radius:999px; background:var(--surface-2); overflow:hidden; margin-top:10px;}
+  .progress > span{display:block; height:100%; background:var(--grad); transition:width .25s ease;}
+  .q{font-size:clamp(20px,3.4vw,28px); margin-top:22px;}
+  .opts{display:flex; flex-direction:column; gap:12px; margin-top:22px;}
+  .opt{text-align:left; font:inherit; font-weight:600; font-size:16px; color:var(--fg); background:var(--bg); border:1px solid var(--border); border-radius:14px; padding:16px 18px; cursor:pointer; transition:border-color .12s ease, background .12s ease, transform .06s ease;}
+  .opt:hover{border-color:var(--accent); background:var(--accent-soft);}
+  .opt:active{transform:scale(.995);}
+  .opt:focus-visible{outline:2px solid var(--accent); outline-offset:2px;}
+
+  .back{margin-top:16px;}
+  .linkbtn{border:0; background:transparent; color:var(--muted); font:inherit; font-size:13px; font-weight:600; cursor:pointer; padding:0;}
+  .linkbtn:hover{color:var(--fg);}
+
+  /* resultado */
+  .result .rlab{font-size:13px; font-weight:700; color:var(--muted);}
+  .result .rtitle{font-size:clamp(26px,4.5vw,38px); color:var(--accent-strong); margin-top:4px;}
+  .result .rsum{color:var(--muted); margin-top:12px; font-size:16px;}
+  .result .nlab{font-size:13px; font-weight:800; margin-top:24px; text-transform:uppercase; letter-spacing:.05em; color:var(--muted);}
+  .nextlist{list-style:none; padding:0; margin:12px 0 0; display:flex; flex-direction:column; gap:11px;}
+  .nextlist li{background:var(--surface-2); border-radius:12px; padding:14px 16px; font-size:15px; line-height:1.5;}
+  .retry{margin-top:24px; border:1px solid var(--border); background:var(--surface); color:var(--fg); border-radius:12px; padding:11px 18px; font:inherit; font-weight:700; font-size:14px; cursor:pointer;}
+  .retry:hover{border-color:var(--accent);}
+  .scorechip{display:inline-block; margin-top:14px; font-size:12.5px; font-weight:700; color:var(--accent-strong); background:var(--accent-soft); padding:5px 12px; border-radius:999px;}
+</style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="wrap">
+      <div class="brand"><span class="logo">$</span> Plata Clara</div>
+      <div class="right"><button class="icon-btn" id="themeBtn" type="button">Cambiar tema</button></div>
+    </div>
+  </header>
+
+  <section class="hero">
+    <div class="wrap">
+      <p class="eyebrow">Test de perfil</p>
+      <h1 id="h-title">¿Qué tipo de ahorrista sos?</h1>
+      <p id="h-intro">Cinco preguntas, un minuto.</p>
+      <p class="aviso" id="h-aviso">Contenido educativo. No es asesoramiento de inversión.</p>
+    </div>
+  </section>
+
+  <main class="wrap">
+    <div class="card" id="quiz" aria-live="polite"></div>
+  </main>
+
+<script>
+  "use strict";
+
+  // Copia del canónico content/test-perfil.json (en Django se lee del JSON/modelo).
+  const DATA = {
+    title: "¿Qué tipo de ahorrista sos?",
+    intro: "Cinco preguntas, un minuto. No hay respuestas correctas: sirve para entender cuánta variación aceptás y qué paso te conviene dar ahora.",
+    aviso: "Contenido educativo. No es asesoramiento de inversión; no reemplaza la consulta con un profesional.",
+    preguntas: [
+      { id:"q1", text:"¿Para cuándo necesitarías este dinero?", opciones:[
+        {label:"En menos de 2 años",points:1},{label:"Entre 2 y 5 años",points:2},{label:"En más de 5 años",points:3}] },
+      { id:"q2", text:"Si tu inversión cae 15% en un mes, ¿qué harías?", opciones:[
+        {label:"Vendo todo para no perder más",points:1},{label:"Espero y no toco nada",points:2},{label:"Aprovecho para sumar más",points:3}] },
+      { id:"q3", text:"¿Cuánto sabés hoy de inversiones?", opciones:[
+        {label:"Casi nada, estoy empezando",points:1},{label:"Lo básico",points:2},{label:"Me siento cómodo con varios conceptos",points:3}] },
+      { id:"q4", text:"¿Tenés un fondo de emergencia armado?", opciones:[
+        {label:"No",points:1},{label:"Cubre 1 a 3 meses",points:2},{label:"Cubre 3 meses o más",points:3}] },
+      { id:"q5", text:"¿Qué te importa más?", opciones:[
+        {label:"No perder lo que tengo",points:1},{label:"Un equilibrio entre seguridad y crecimiento",points:2},{label:"Que crezca, aunque haya altibajos",points:3}] }
+    ],
+    perfiles: [
+      { id:"conservador", maxScore:8, title:"Perfil conservador",
+        summary:"Priorizás la tranquilidad y la disponibilidad de tu dinero. Es un buen punto de partida.",
+        next:["Completá primero tu fondo de emergencia y salí de deudas caras.","Investigá opciones de bajo riesgo y alta liquidez.","Revisá el glosario: entender los términos te da seguridad."] },
+      { id:"moderado", maxScore:12, title:"Perfil moderado",
+        summary:"Aceptás cierta variación a cambio de crecimiento y tenés un horizonte de mediano plazo.",
+        next:["Combiná opciones seguras con una parte de mayor rendimiento potencial.","Diversificá: no pongas todo en un solo lugar.","Definí un plan de aportes mensuales y respetalo."] },
+      { id:"dinamico", maxScore:15, title:"Perfil dinámico",
+        summary:"Tenés plazo largo y tolerás las subas y bajadas. Igual, la base sigue siendo ordenada.",
+        next:["Asegurate de que tu fondo de emergencia esté intacto antes de arriesgar.","Diversificá entre distintos tipos de activos y mercados.","Evitá decidir por impulso: seguí un plan, no las noticias."] }
+    ]
+  };
+
+  const $ = (id) => document.getElementById(id);
+  const esc = (s) => String(s).replace(/[&<>"]/g, c => ({ "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;" }[c]));
+
+  // Encabezado desde los datos
+  $("h-title").textContent = DATA.title;
+  $("h-intro").textContent = DATA.intro;
+  $("h-aviso").textContent = DATA.aviso;
+
+  // Tema claro/oscuro
+  (function(){
+    const root = document.documentElement;
+    try { const saved = localStorage.getItem("pc-theme"); if (saved) root.setAttribute("data-theme", saved); } catch (e) {}
+    $("themeBtn").addEventListener("click", function(){
+      const dark = getComputedStyle(root).colorScheme.indexOf("dark") !== -1;
+      const next = dark ? "light" : "dark";
+      root.setAttribute("data-theme", next);
+      try { localStorage.setItem("pc-theme", next); } catch (e) {}
+    });
+  })();
+
+  let answers = []; // puntos elegidos
+
+  function perfilFor(score){
+    // primer perfil cuyo maxScore alcanza el puntaje
+    return DATA.perfiles.find(p => score <= p.maxScore) || DATA.perfiles[DATA.perfiles.length - 1];
+  }
+
+  function render(){
+    const total = DATA.preguntas.length;
+    const step = answers.length;
+    const box = $("quiz");
+
+    if (step < total){
+      const q = DATA.preguntas[step];
+      box.innerHTML =
+        '<p class="meta">Pregunta ' + (step + 1) + ' de ' + total + '</p>' +
+        '<div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="' + total + '" aria-valuenow="' + step + '" aria-label="Progreso del test">' +
+          '<span style="width:' + (step / total * 100) + '%"></span>' +
+        '</div>' +
+        '<h2 class="q">' + esc(q.text) + '</h2>' +
+        '<div class="opts">' +
+          q.opciones.map((o, i) => '<button class="opt" data-points="' + o.points + '" data-i="' + i + '">' + esc(o.label) + '</button>').join("") +
+        '</div>' +
+        (step > 0 ? '<div class="back"><button class="linkbtn" id="backBtn" type="button">← Volver</button></div>' : "");
+
+      box.querySelectorAll(".opt").forEach(btn => btn.addEventListener("click", function(){
+        answers.push(Number(btn.getAttribute("data-points")));
+        render();
+      }));
+      const back = $("backBtn");
+      if (back) back.addEventListener("click", function(){ answers.pop(); render(); });
+    } else {
+      const score = answers.reduce((a, b) => a + b, 0);
+      const p = perfilFor(score);
+      box.innerHTML =
+        '<p class="rlab">Tu resultado</p>' +
+        '<h2 class="rtitle">' + esc(p.title) + '</h2>' +
+        '<span class="scorechip">Puntaje: ' + score + ' de ' + (total * 3) + '</span>' +
+        '<p class="rsum">' + esc(p.summary) + '</p>' +
+        '<p class="nlab">Tus próximos pasos</p>' +
+        '<ul class="nextlist">' + p.next.map(n => '<li>' + esc(n) + '</li>').join("") + '</ul>' +
+        '<button class="retry" id="retryBtn" type="button">↺ Repetir el test</button>';
+      $("retryBtn").addEventListener("click", function(){ answers = []; render(); });
+    }
+  }
+
+  render();
+</script>
+</body>
+</html>

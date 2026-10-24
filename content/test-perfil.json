@@ -1,0 +1,90 @@
+{
+  "_nota": "Test de perfil de ahorrista (Batch 2, idea portada del zip). NO tiene respuestas correctas: suma puntos y clasifica en un perfil. Encuadre educativo, no es asesoramiento de inversión. Mapea a la app `quizzes` como variante 'perfil' (puntaje → rango → resultado), distinta del quiz de NIVEL de quiz.json.",
+  "version": 1,
+  "id": "test-perfil-ahorrista",
+  "title": "¿Qué tipo de ahorrista sos?",
+  "intro": "Cinco preguntas, un minuto. No hay respuestas correctas: sirve para entender cuánta variación aceptás y qué paso te conviene dar ahora.",
+  "aviso": "Contenido educativo. No es asesoramiento de inversión; no reemplaza la consulta con un profesional.",
+  "preguntas": [
+    {
+      "id": "q1",
+      "text": "¿Para cuándo necesitarías este dinero?",
+      "opciones": [
+        { "label": "En menos de 2 años", "points": 1 },
+        { "label": "Entre 2 y 5 años", "points": 2 },
+        { "label": "En más de 5 años", "points": 3 }
+      ]
+    },
+    {
+      "id": "q2",
+      "text": "Si tu inversión cae 15% en un mes, ¿qué harías?",
+      "opciones": [
+        { "label": "Vendo todo para no perder más", "points": 1 },
+        { "label": "Espero y no toco nada", "points": 2 },
+        { "label": "Aprovecho para sumar más", "points": 3 }
+      ]
+    },
+    {
+      "id": "q3",
+      "text": "¿Cuánto sabés hoy de inversiones?",
+      "opciones": [
+        { "label": "Casi nada, estoy empezando", "points": 1 },
+        { "label": "Lo básico", "points": 2 },
+        { "label": "Me siento cómodo con varios conceptos", "points": 3 }
+      ]
+    },
+    {
+      "id": "q4",
+      "text": "¿Tenés un fondo de emergencia armado?",
+      "opciones": [
+        { "label": "No", "points": 1 },
+        { "label": "Cubre 1 a 3 meses", "points": 2 },
+        { "label": "Cubre 3 meses o más", "points": 3 }
+      ]
+    },
+    {
+      "id": "q5",
+      "text": "¿Qué te importa más?",
+      "opciones": [
+        { "label": "No perder lo que tengo", "points": 1 },
+        { "label": "Un equilibrio entre seguridad y crecimiento", "points": 2 },
+        { "label": "Que crezca, aunque haya altibajos", "points": 3 }
+      ]
+    }
+  ],
+  "perfiles": [
+    {
+      "id": "conservador",
+      "maxScore": 8,
+      "title": "Perfil conservador",
+      "summary": "Priorizás la tranquilidad y la disponibilidad de tu dinero. Es un buen punto de partida.",
+      "next": [
+        "Completá primero tu fondo de emergencia y salí de deudas caras.",
+        "Investigá opciones de bajo riesgo y alta liquidez.",
+        "Revisá el glosario: entender los términos te da seguridad."
+      ]
+    },
+    {
+      "id": "moderado",
+      "maxScore": 12,
+      "title": "Perfil moderado",
+      "summary": "Aceptás cierta variación a cambio de crecimiento y tenés un horizonte de mediano plazo.",
+      "next": [
+        "Combiná opciones seguras con una parte de mayor rendimiento potencial.",
+        "Diversificá: no pongas todo en un solo lugar.",
+        "Definí un plan de aportes mensuales y respetalo."
+      ]
+    },
+    {
+      "id": "dinamico",
+      "maxScore": 15,
+      "title": "Perfil dinámico",
+      "summary": "Tenés plazo largo y tolerás las subas y bajadas. Igual, la base sigue siendo ordenada.",
+      "next": [
+        "Asegurate de que tu fondo de emergencia esté intacto antes de arriesgar.",
+        "Diversificá entre distintos tipos de activos y mercados.",
+        "Evitá decidir por impulso: seguí un plan, no las noticias."
+      ]
+    }
+  ]
+}
