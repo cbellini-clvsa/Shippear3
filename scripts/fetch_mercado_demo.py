@@ -45,6 +45,21 @@ def yahoo(ticker, n=13):
     items = sorted(bym.items())[-n:]
     return [{"m": k, "v": v} for k, v in items]
 
+def yahoo_full(ticker):
+    url = "https://query1.finance.yahoo.com/v8/finance/chart/%s?range=1y&interval=1mo" % ticker
+    d = get(url); res = d["chart"]["result"][0]
+    ts = res["timestamp"]; q = res["indicators"]["quote"][0]
+    o = q.get("open", []); hi = q.get("high", []); lo = q.get("low", []); cl = q.get("close", [])
+    bym = {}
+    for i, t in enumerate(ts):
+        ym = datetime.fromtimestamp(t, tz=timezone.utc).strftime("%Y-%m")
+        def at(a): return a[i] if i < len(a) and a[i] is not None else None
+        bym[ym] = (at(o), at(hi), at(lo), at(cl))
+    months = sorted(bym.keys())[-12:]
+    hist = [{"m": m, "v": round(bym[m][3], 2)} for m in months if bym[m][3] is not None]
+    candles = [{"t": m+"-01", "o": round(bym[m][0], 2), "h": round(bym[m][1], 2), "l": round(bym[m][2], 2), "c": round(bym[m][3], 2)} for m in months if None not in bym[m]]
+    return hist, candles
+
 out = {"generado": datetime.now().strftime("%Y-%m-%d %H:%M"), "grupos": {}}
 
 # ---------- DOLAR ----------
@@ -92,9 +107,9 @@ out["grupos"]["Indicadores del Estado"] = ind
 g = []
 for tk, nm in [("GGAL.BA","Grupo Galicia"),("YPFD.BA","YPF"),("PAMP.BA","Pampa Energia"),("ALUA.BA","Aluar"),("BMA.BA","Banco Macro"),("TXAR.BA","Ternium Argentina")]:
     try:
-        h = yahoo(tk)
+        h, candles = yahoo_full(tk)
         if h:
-            g.append({"key":tk,"name":nm,"ticker":tk.replace(".BA",""),"val":h[-1]["v"],"unit":"ARS","hist":h,"src":"Yahoo Finance (BYMA)"})
+            g.append({"key":tk,"name":nm,"ticker":tk.replace(".BA",""),"val":h[-1]["v"],"unit":"ARS","hist":h,"candles":candles,"src":"Yahoo Finance (BYMA)"})
         time.sleep(0.6)
     except Exception as e:
         print("accion FAIL", tk, e)

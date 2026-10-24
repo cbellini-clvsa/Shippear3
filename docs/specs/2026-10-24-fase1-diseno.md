@@ -45,6 +45,10 @@ carteras a medida.
   (principiante → intermedio → avanzado).
 - **Glosario** buscable, con términos enlazados entre sí.
 - **Quizzes** con puntaje y feedback, asociados a módulos.
+- **Ruta "5 pasos, en este orden"** (gastos → emergencia → deudas → ahorro → inversión) y
+  **Herramientas** interactivas (calculadoras de interés compuesto, meta de ahorro, fondo de
+  emergencia y presupuesto 50/30/20), client-side y sin login. *(Ideas portadas del material de
+  asesoría; ver `2026-10-24-ideas-asesoria-integracion.md`.)*
 - **Login con Google (OAuth 2.0) y seguimiento de progreso:** lecciones completadas, puntajes, racha
   y logros quedan asociados a la cuenta de Google del usuario y se sincronizan entre dispositivos.
   Quien explora sin iniciar sesión puede usar la app igual (progreso local de respaldo).
@@ -168,7 +172,8 @@ con un punto por mes). Fuentes confirmadas y en uso (todas sin clave):
 
 - **Histórico mensual:** 12 puntos (un valor por mes del último año). Para **bonos**, la fuente
   gratuita solo da el precio del día; la serie histórica mensual de bonos se integra en la app real
-  (se avisa en la ficha).
+  (se avisa en la ficha). **Crypto y Acciones** se muestran con **velas (candlestick) mensuales**
+  (Lightweight Charts de TradingView); el resto, en línea.
 - **Caché + resiliencia:** la app lee de una caché (unos minutos) y, si una fuente falla, muestra el
   **último valor conocido con su fecha**, nunca un error crudo.
 - **En la maqueta** los valores van **embebidos** (reales, a la fecha de generación); en la app
